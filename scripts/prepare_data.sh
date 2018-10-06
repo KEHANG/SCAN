@@ -36,6 +36,8 @@ elif [ "$1" = "CelebA" ]; then
     if [ ! -d $datapath"img_align_celeba" ]; then
         unzip $datapath"img_align_celeba.zip"
     fi
-    mkdir $datapath"CelebA"
+    if [ ! -d $datapath"CelebA" ]; then
+        mkdir $datapath"CelebA"
+    fi
     mv $datapath"img_align_celeba" $datapath"CelebA"
 fi
