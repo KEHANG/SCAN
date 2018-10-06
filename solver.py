@@ -88,9 +88,9 @@ class Solver(object):
         else:
             raise NotImplementedError
 
-        if args.args.model == 'H':
+        if args.model == 'H':
             net = BetaVAE_H
-        elif args.args.model == 'B':
+        elif args.model == 'B':
             net = BetaVAE_B
         else:
             raise NotImplementedError('only support model H or B')
