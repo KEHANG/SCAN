@@ -32,7 +32,7 @@ elif [ "$1" = "dsprites" ]; then
     rm -rf .git* *.md LICENSE *.ipynb *.gif *.hdf5
 
 elif [ "$1" = "CelebA" ]; then
-    datapath="/data/hc/SCAN/dataset/" # this depends on the specific environment
+    datapath="/data/hc/SCAN/dataset/" # this should be defined as the directory containing ima_align_celeba.zip
     unzip $datapath"/img_align_celeba.zip"
     mkdir $datapath"/CelebA"
     mv $datapath"/img_align_celeba" $datapath"/CelebA"
