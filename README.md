@@ -17,7 +17,7 @@ initialize visdom
 ```
 vidsom -port 6059
 ```
-Results of beta-VAE can be reproduced by scripts in `scripts/beta-VAE`
+Results of beta-VAE can be reproduced by scripts in `scripts/beta-VAE` <br>
 For objective and model arguments, you have two options H and B indicating methods proposed in Higgins et al. and Burgess et al., respectively.
 Arguments `--C_max` and `--C_stop_iter` should be set when `--objective B`. for further details, please refer to Burgess et al.
 
