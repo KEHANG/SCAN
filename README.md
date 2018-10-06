@@ -27,18 +27,17 @@ sh scripts/ run_dsprites_B_gamma100_z10.sh
 ```
 or you can run your own experiments by setting parameters manually.
 For objective and model arguments, you have two options H and B indicating methods proposed in Higgins et al. and Burgess et al., respectively.
-Arguments `--C_max` and ```--C_stop_iter``` should be set when ```--objective B```. for further details, please refer to Burgess et al.
+Arguments `--C_max` and `--C_stop_iter` should be set when `--objective B`. for further details, please refer to Burgess et al.
 
 e.g.
 ```
 python main.py --dataset 3DChairs --beta 4 --lr 1e-4 --z_dim 10 --objective H --model H --max_iter 1e6 ...
 python main.py --dataset dsprites --gamma 1000 --C_max 25 --C_stop_iter 1e5 --lr 5e-4 --z_dim 10 --objective B --model B --max_iter 1e6 ...
 ```
-check training process on the visdom server
+check training process on the visdom server, whose default port is:
 ```
 localhost:8097
 ```
-<br>
 
 ### Results
 #### 3D Chairs
