@@ -1,7 +1,6 @@
 # SCAN
 Pytorch reproduction of the paper:
 [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
-<br>
 
 ### Dependencies
 ```
@@ -9,11 +8,9 @@ python 3.6.4
 pytorch 0.3.1.post2
 visdom
 ```
-<br>
 
 ### Datasets
 [same with here]
-<br>
 
 ### Usage
 initialize visdom
@@ -22,11 +19,11 @@ python -m visdom.server
 ```
 you can reproduce results below by
 ```
-sh run_celeba_H_beta10_z10.sh
-sh run_celeba_H_beta10_z32.sh
-sh run_3dchairs_H_beta4_z10.sh
-sh run_3dchairs_H_beta4_z16.sh
-sh run_dsprites_B_gamma100_z10.sh
+sh scripts/ run_celeba_H_beta10_z10.sh
+sh scripts/ run_celeba_H_beta10_z32.sh
+sh scripts/ run_3dchairs_H_beta4_z10.sh
+sh scripts/ run_3dchairs_H_beta4_z16.sh
+sh scripts/ run_dsprites_B_gamma100_z10.sh
 ```
 or you can run your own experiments by setting parameters manually.<br>
 for objective and model arguments, you have two options H and B indicating methods proposed in Higgins et al. and Burgess et al., respectively.<br>
