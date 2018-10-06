@@ -216,28 +216,8 @@ class Solver(object):
         legend.append('mean')
         legend.append('total')
 
-        if self.win_recon is None:
-            self.win_recon = self.vis.line(
-                                        X=iters,
-                                        Y=recon_losses,
-                                        env=self.args.vis_name+'_lines',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            xlabel='iteration',
-                                            title='reconsturction loss',))
-        else:
-            self.win_recon = self.vis.line(
-                                        X=iters,
-                                        Y=recon_losses,
-                                        env=self.args.vis_name+'_lines',
-                                        win=self.win_recon,
-                                        update='append',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            xlabel='iteration',
-                                            title='reconsturction loss',))
+        self.win_recon = self.vis.line(X=iters, Y=recon_losses, env=self.args.vis_name+'_lines', name='reconstruction_loss', update='append',
+                                       opts=dict( width=400, height=400, xlabel='iteration', title='reconstruction loss',))
 
         if self.win_kld is None:
             self.win_kld = self.vis.line(
