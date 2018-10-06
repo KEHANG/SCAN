@@ -220,82 +220,11 @@ class Solver(object):
             return self.vis.line(X=iters, Y=Y, env=self.args.vis_name+'_lines', win=win, update='append',
                                  opts=dict( width=400, height=400, xlabel='iteration', title=title,))
 
-        self.win_recon = update_win(recon_losses, self.win_recon, 'reconstruction_loss')
+        self.win_recon = update_win(recon_losses, self.win_recon, 'reconstruction loss')
+        self.win_kld = update_win(klds, self.win_kld, 'kl divergence')
+        self.win_mu = update_win(mus, self.win_mu, 'posterior mean')
+        self.win_var = update_win(vars, self.win_var, 'posterior variance')
 
-        if self.win_kld is None:
-            self.win_kld = self.vis.line(
-                                        X=iters,
-                                        Y=klds,
-                                        env=self.args.vis_name+'_lines',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            legend=legend,
-                                            xlabel='iteration',
-                                            title='kl divergence',))
-        else:
-            self.win_kld = self.vis.line(
-                                        X=iters,
-                                        Y=klds,
-                                        env=self.args.vis_name+'_lines',
-                                        win=self.win_kld,
-                                        update='append',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            legend=legend,
-                                            xlabel='iteration',
-                                            title='kl divergence',))
-
-        if self.win_mu is None:
-            self.win_mu = self.vis.line(
-                                        X=iters,
-                                        Y=mus,
-                                        env=self.args.vis_name+'_lines',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            legend=legend[:self.args.z_dim],
-                                            xlabel='iteration',
-                                            title='posterior mean',))
-        else:
-            self.win_mu = self.vis.line(
-                                        X=iters,
-                                        Y=vars,
-                                        env=self.args.vis_name+'_lines',
-                                        win=self.win_mu,
-                                        update='append',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            legend=legend[:self.args.z_dim],
-                                            xlabel='iteration',
-                                            title='posterior mean',))
-
-        if self.win_var is None:
-            self.win_var = self.vis.line(
-                                        X=iters,
-                                        Y=vars,
-                                        env=self.args.vis_name+'_lines',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            legend=legend[:self.args.z_dim],
-                                            xlabel='iteration',
-                                            title='posterior variance',))
-        else:
-            self.win_var = self.vis.line(
-                                        X=iters,
-                                        Y=vars,
-                                        env=self.args.vis_name+'_lines',
-                                        win=self.win_var,
-                                        update='append',
-                                        opts=dict(
-                                            width=400,
-                                            height=400,
-                                            legend=legend[:self.args.z_dim],
-                                            xlabel='iteration',
-                                            title='posterior variance',))
         self.net_mode(train=True)
 
     def vis_traverse(self, limit=3, inter=2/3, loc=-1):
