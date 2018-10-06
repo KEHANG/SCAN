@@ -1,7 +1,8 @@
 #! /bin/sh
 
-mkdir -p data
-cd data
+datapath="/data/hc/SCAN/dataset/" # this should be defined as the directory containing ima_align_celeba.zip
+mkdir -p $datapath
+cd $datapath
 
 if [ "$1" = "3DChairs" ]; then
     if [ -f "rendered_chairs.tar" ]; then
@@ -32,12 +33,11 @@ elif [ "$1" = "dsprites" ]; then
     rm -rf .git* *.md LICENSE *.ipynb *.gif *.hdf5
 
 elif [ "$1" = "CelebA" ]; then
-    datapath="/data/hc/SCAN/dataset/" # this should be defined as the directory containing ima_align_celeba.zip
-    if [ ! -d $datapath"img_align_celeba" ]; then
-        unzip $datapath"img_align_celeba.zip" -d $datapath
+    if [ ! -d "img_align_celeba" ]; then
+        unzip "img_align_celeba.zip"
     fi
-    if [ ! -d $datapath"CelebA" ]; then
-        mkdir $datapath"CelebA"
+    if [ ! -d "CelebA" ]; then
+        mkdir "CelebA"
+        mv "img_align_celeba" "CelebA"
     fi
-    mv $datapath"img_align_celeba" $datapath"CelebA"
 fi
