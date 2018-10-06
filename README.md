@@ -1,6 +1,6 @@
-# β-VAE
-Pytorch reproduction of the paper below
-1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
+# SCAN
+Pytorch reproduction of the paper:
+[SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
 <br>
 
 ### Dependencies
@@ -80,12 +80,9 @@ sh run_dsprites_B.sh
 
 
 ### Reference
-1. [β-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, Higgins et al., ICLR, 2017]
-2. [Understanding disentangling in β-VAE, Burgess et al., arxiv:1804.03599, 2018]
-3. [Github Repo]: Tensorflow implementation from [miyosuda]
+1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
+2. [Github Repo]: Pytorch implementation of beta-VAE from [1Konny]
 
-[β-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, Higgins et al., ICLR, 2017]: https://openreview.net/pdf?id=Sy2fzU9gl
-[Understanding disentangling in β-VAE, Burgess et al., arxiv:1804.03599, 2018]: http://arxiv.org/abs/1804.03599
-[same with here]: https://github.com/1Konny/FactorVAE
-[Github Repo]: https://github.com/miyosuda/disentangled_vae
-[miyosuda]: https://github.com/miyosuda
+[SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]: https://arxiv.org/abs/1707.03389
+[Github Repo]: https://github.com/1Konny/Beta-VAE 
+[1Konny]: https://github.com/1Konny/Beta-VAE 
