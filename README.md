@@ -25,9 +25,9 @@ sh scripts/ run_3dchairs_H_beta4_z10.sh
 sh scripts/ run_3dchairs_H_beta4_z16.sh
 sh scripts/ run_dsprites_B_gamma100_z10.sh
 ```
-or you can run your own experiments by setting parameters manually.<br>
-for objective and model arguments, you have two options H and B indicating methods proposed in Higgins et al. and Burgess et al., respectively.<br>
-arguments ```--C_max``` and ```--C_stop_iter``` should be set when ```--objective B```. for further details, please refer to Burgess et al.
+or you can run your own experiments by setting parameters manually.
+For objective and model arguments, you have two options H and B indicating methods proposed in Higgins et al. and Burgess et al., respectively.
+Arguments ```--C_max``` and ```--C_stop_iter``` should be set when ```--objective B```. for further details, please refer to Burgess et al.
 ```
 e.g.
 python main.py --dataset 3DChairs --beta 4 --lr 1e-4 --z_dim 10 --objective H --model H --max_iter 1e6 ...
