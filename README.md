@@ -15,17 +15,9 @@ visdom
 ### Usage
 initialize visdom
 ```
-python -m visdom.server
+vidsom -port 6059
 ```
-you can reproduce results below by
-```
-sh scripts/ run_celeba_H_beta10_z10.sh
-sh scripts/ run_celeba_H_beta10_z32.sh
-sh scripts/ run_3dchairs_H_beta4_z10.sh
-sh scripts/ run_3dchairs_H_beta4_z16.sh
-sh scripts/ run_dsprites_B_gamma100_z10.sh
-```
-or you can run your own experiments by setting parameters manually.
+Results of beta-VAE can be reproduced by scripts in `scripts/beta-VAE`
 For objective and model arguments, you have two options H and B indicating methods proposed in Higgins et al. and Burgess et al., respectively.
 Arguments `--C_max` and `--C_stop_iter` should be set when `--objective B`. for further details, please refer to Burgess et al.
 
@@ -36,7 +28,7 @@ python main.py --dataset dsprites --gamma 1000 --C_max 25 --C_stop_iter 1e5 --lr
 ```
 check training process on the visdom server, whose default port is:
 ```
-localhost:8097
+localhost:6059
 ```
 
 ### Results
