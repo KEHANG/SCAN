@@ -85,4 +85,5 @@ sh run_dsprites_B.sh
 
 [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]: https://arxiv.org/abs/1707.03389
 [Github Repo]: https://github.com/1Konny/Beta-VAE 
-[1Konny]: https://github.com/1Konny/Beta-VAE 
+[1Konny]: https://github.com/1Konny 
+[same with here]: https://github.com/1Konny/FactorVAE 
