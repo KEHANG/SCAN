@@ -1,7 +1,6 @@
 # β-VAE
-Pytorch reproduction of two papers below:
-1. [β-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework, Higgins et al., ICLR, 2017]
-2. [Understanding disentangling in β-VAE, Burgess et al., arxiv:1804.03599, 2018]
+Pytorch reproduction of the paper below
+1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
 <br>
 
 ### Dependencies
