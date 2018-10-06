@@ -95,7 +95,7 @@ class Solver(object):
         else:
             raise NotImplementedError('only support model H or B')
 
-        self.net = cuda(net(self.args.z_dim, self.nc), self.args.use_cuda)
+        self.net = cuda(net(self.args.z_dim, self.nc), self.args.cuda)
         self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
                                     betas=(self.args.beta1, self.args.beta2))
 
@@ -118,7 +118,7 @@ class Solver(object):
 
     def train(self):
         self.net_mode(train=True)
-        self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.use_cuda))
+        self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
         out = False
 
         pbar = tqdm(total=self.args.max_iter)
@@ -128,7 +128,7 @@ class Solver(object):
                 self.global_iter += 1
                 pbar.update(1)
 
-                x = Variable(cuda(x, self.args.use_cuda))
+                x = Variable(cuda(x, self.args.cuda))
                 x_recon, mu, logvar = self.net(x)
                 recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
                 total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
@@ -307,10 +307,10 @@ class Solver(object):
         rand_idx = random.randint(1, n_dsets-1)
 
         random_img = self.data_loader.dataset.__getitem__(rand_idx)
-        random_img = Variable(cuda(random_img, self.args.use_cuda), volatile=True).unsqueeze(0)
+        random_img = Variable(cuda(random_img, self.args.cuda), volatile=True).unsqueeze(0)
         random_img_z = encoder(random_img)[:, :self.args.z_dim]
 
-        random_z = Variable(cuda(torch.rand(1, self.args.z_dim), self.args.use_cuda), volatile=True)
+        random_z = Variable(cuda(torch.rand(1, self.args.z_dim), self.args.cuda), volatile=True)
 
         if self.args.dataset == 'dsprites':
             fixed_idx1 = 87040 # square
@@ -318,15 +318,15 @@ class Solver(object):
             fixed_idx3 = 578560 # heart
 
             fixed_img1 = self.data_loader.dataset.__getitem__(fixed_idx1)
-            fixed_img1 = Variable(cuda(fixed_img1, self.args.use_cuda), volatile=True).unsqueeze(0)
+            fixed_img1 = Variable(cuda(fixed_img1, self.args.cuda), volatile=True).unsqueeze(0)
             fixed_img_z1 = encoder(fixed_img1)[:, :self.args.z_dim]
 
             fixed_img2 = self.data_loader.dataset.__getitem__(fixed_idx2)
-            fixed_img2 = Variable(cuda(fixed_img2, self.args.use_cuda), volatile=True).unsqueeze(0)
+            fixed_img2 = Variable(cuda(fixed_img2, self.args.cuda), volatile=True).unsqueeze(0)
             fixed_img_z2 = encoder(fixed_img2)[:, :self.args.z_dim]
 
             fixed_img3 = self.data_loader.dataset.__getitem__(fixed_idx3)
-            fixed_img3 = Variable(cuda(fixed_img3, self.args.use_cuda), volatile=True).unsqueeze(0)
+            fixed_img3 = Variable(cuda(fixed_img3, self.args.cuda), volatile=True).unsqueeze(0)
             fixed_img_z3 = encoder(fixed_img3)[:, :self.args.z_dim]
 
             Z = {'fixed_square':fixed_img_z1, 'fixed_ellipse':fixed_img_z2,
@@ -334,7 +334,7 @@ class Solver(object):
         else:
             fixed_idx = 0
             fixed_img = self.data_loader.dataset.__getitem__(fixed_idx)
-            fixed_img = Variable(cuda(fixed_img, self.args.use_cuda), volatile=True).unsqueeze(0)
+            fixed_img = Variable(cuda(fixed_img, self.args.cuda), volatile=True).unsqueeze(0)
             fixed_img_z = encoder(fixed_img)[:, :self.args.z_dim]
 
             Z = {'fixed_img':fixed_img_z, 'random_img':random_img_z, 'random_z':random_z}
