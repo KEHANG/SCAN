@@ -35,6 +35,7 @@ elif [ "$1" = "CelebA" ]; then
     datapath="/data/hc/SCAN/dataset/" # this should be defined as the directory containing ima_align_celeba.zip
     if [ ! -d $datapath"img_align_celeba" ]; then
         unzip $datapath"img_align_celeba.zip"
+    fi
     mkdir $datapath"CelebA"
     mv $datapath"img_align_celeba" $datapath"CelebA"
 fi
