@@ -429,11 +429,10 @@ def random_occluding(images, size, ratio=0.4):
         y_span = int(y * ratio)
         left = random.randint(0, x - x_span)
         down = random.randint(0, y - y_span)
-        mask = torch.zeros([nc] + size, dtype=torch.int32)
+        mask = torch.zeros([nc, x, y], dtype=torch.int32)
         mask[:, left : left+x_span, down : down+y_span]= 1
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
-    print(masks.size())
     occluded = images.masked_fill_(masks, 0)
     return occluded
