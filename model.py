@@ -146,7 +146,7 @@ class BetaVAE_B_net(BetaVAE_H_net):
 class DAE_net(nn.Module):
 
     def __init__(self, z_dim=10, nc=3):
-        super(BetaVAE_H_net, self).__init__()
+        super(DAE_net, self).__init__()
         self.z_dim = z_dim
         self.nc = nc
 
