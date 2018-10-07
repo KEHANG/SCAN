@@ -10,7 +10,6 @@ import visdom
 import random
 
 import torch
-import numpy
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -50,7 +49,6 @@ class Solver(ABC):
                                betas=(self.args.beta1, self.args.beta2), eps=self.args.epsilon)
         self.load_checkpoint(self.args.ckpt_name)
         self.data_loader = return_data(self.args)
-
 
     @abstractmethod
     def prepare_training(self):
@@ -103,7 +101,7 @@ class Solver(ABC):
     def vis_display(self, x, x_recon, traverse=True):
         if self.args.vis_on:
             self.gather.insert(images=x.data)
-            self.gather.insert(images=F.sigmoid(x_recon).data)
+            self.gather.insert(images=x_recon.data)
             self.vis_reconstruction()
             self.vis_lines()
             self.gather.flush()
@@ -220,7 +218,7 @@ class super_beta_VAE(Solver):
         legend.append('mean')
         legend.append('total')
 
-        self.win_recon = self.update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
+        self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
         self.win_kld = self.update_win(klds, self.win_kld, legend, 'kl divergence')
         self.win_mu = self.update_win(mus, self.win_mu, legend[:self.args.z_dim], 'posterior mean')
         self.win_var = self.update_win(variances, self.win_var, legend[:self.args.z_dim], 'posterior variance')
@@ -362,7 +360,7 @@ class DAE(Solver):
     def vis_lines(self):
         self.net_mode(train=False)
         recon_losses = torch.stack(self.gather.data['recon_loss']).cpu()
-        self.win_recon = self.update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
+        self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
         self.net_mode(train=True)
 
 #---------------------------------NEW CLASS-------------------------------------#
