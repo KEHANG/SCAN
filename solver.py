@@ -17,64 +17,54 @@ from utils import cuda, grid2gif
 from model import BetaVAE_H, BetaVAE_B
 from dataset import return_data
 
-
-def reconstruction_loss(x, x_recon, distribution):
-    batch_size = x.size(0)
-    assert batch_size != 0
-
-    if distribution == 'bernoulli':
-        recon_loss = F.binary_cross_entropy_with_logits(x_recon, x, size_average=False).div(batch_size)
-    elif distribution == 'gaussian':
-        x_recon = F.sigmoid(x_recon)
-        recon_loss = F.mse_loss(x_recon, x, size_average=False).div(batch_size)
-    else:
-        recon_loss = None
-
-    return recon_loss
-
-
-def kl_divergence(mu, logvar):
-    batch_size = mu.size(0)
-    assert batch_size != 0
-    if mu.data.ndimension() == 4:
-        mu = mu.view(mu.size(0), mu.size(1))
-    if logvar.data.ndimension() == 4:
-        logvar = logvar.view(logvar.size(0), logvar.size(1))
-
-    klds = -0.5*(1 + logvar - mu.pow(2) - logvar.exp())
-    total_kld = klds.sum(1).mean(0, True)
-    dimension_wise_kld = klds.mean(0)
-    mean_kld = klds.mean(1).mean(0, True)
-
-    return total_kld, dimension_wise_kld, mean_kld
-
-
-class DataGather(object):
-    def __init__(self):
-        self.data = self.get_empty_data_dict()
-
-    def get_empty_data_dict(self):
-        return dict(iter=[],
-                    recon_loss=[],
-                    total_kld=[],
-                    dim_wise_kld=[],
-                    mean_kld=[],
-                    mu=[],
-                    var=[],
-                    images=[],)
-
-    def insert(self, **kwargs):
-        for key in kwargs:
-            self.data[key].append(kwargs[key])
-
-    def flush(self):
-        self.data = self.get_empty_data_dict()
-
-
 class Solver(object):
     def __init__(self, args):
         self.global_iter = 0
         self.args = args
+
+    def clean_workspace(self):
+        if not os.path.exists(self.args.ckpt_dir):
+            os.makedirs(self.args.ckpt_dir, exist_ok=True)
+        self.load_checkpoint(self.args.ckpt_name)
+        if not os.path.exists(self.args.output_dir):
+            os.makedirs(self.args.output_dir, exist_ok=True)
+
+        self.gather = DataGather()
+
+    def train(self):
+        pass
+    def vis_reconstruction(self):
+        self.net_mode(train=False)
+        x = self.gather.data['images'][0][:100]
+        x = make_grid(x, normalize=True)
+        x_recon = self.gather.data['images'][1][:100]
+        x_recon = make_grid(x_recon, normalize=True)
+        images = torch.stack([x, x_recon], dim=0).cpu()
+        self.vis.images(images, env=self.args.vis_name+'_reconstruction',
+                        opts=dict(title=str(self.global_iter)), nrow=10)
+        self.net_mode(train=True)
+
+    def vis_lines(self):
+        pass
+    
+    def net_mode(self, train):
+        if not isinstance(train, bool):
+            raise('Only bool type is supported. True or False')
+        if train:
+            self.net.train()
+        else:
+            self.net.eval()
+
+    def save_checkpoint(self, filename):
+        pass
+    def load_checkpoint(self, filename):
+        pass
+
+
+class super_beta_VAE(Solver):
+
+    def __init__(self, args):
+        super(super_beta_VAE, self).__init__()
 
         if args.dataset.lower() == 'dsprites':
             self.nc = 1
@@ -103,27 +93,20 @@ class Solver(object):
         self.win_kld = None
         self.win_mu = None
         self.win_var = None
+
         if self.args.vis_on:
             self.vis = visdom.Visdom(port=self.args.vis_port)
+        self.data_loader = return_data(self.args)
 
-        if not os.path.exists(self.args.ckpt_dir):
-            os.makedirs(self.args.ckpt_dir, exist_ok=True)
-        if self.args.ckpt_name is not None:
-            self.load_checkpoint(self.args.ckpt_name)
-        if not os.path.exists(self.args.output_dir):
-            os.makedirs(self.args.output_dir, exist_ok=True)
-
-        self.data_loader = return_data(args)
-        self.gather = DataGather()
+        self.clean_workspace()
 
     def train(self):
         self.net_mode(train=True)
         self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
-        out = False
 
         pbar = tqdm(total=self.args.max_iter)
         pbar.update(self.global_iter)
-        while not out:
+        while self.global_iter < self.args.max_iter:
             for x in self.data_loader:
                 self.global_iter += 1
                 pbar.update(1)
@@ -173,36 +156,19 @@ class Solver(object):
                         self.vis_traverse()
 
                 if self.global_iter%self.args.save_step == 0:
+                    self.save_checkpoint(str(self.global_iter))
                     self.save_checkpoint('last')
                     pbar.write('Saved checkpoint(iter:{})'.format(self.global_iter))
 
-                if self.global_iter%50000 == 0:
-                    self.save_checkpoint(str(self.global_iter))
-
-                if self.global_iter >= self.args.max_iter:
-                    out = True
-                    break
-
         pbar.write("[Training Finished]")
         pbar.close()
-
-    def vis_reconstruction(self):
-        self.net_mode(train=False)
-        x = self.gather.data['images'][0][:100]
-        x = make_grid(x, normalize=True)
-        x_recon = self.gather.data['images'][1][:100]
-        x_recon = make_grid(x_recon, normalize=True)
-        images = torch.stack([x, x_recon], dim=0).cpu()
-        self.vis.images(images, env=self.args.vis_name+'_reconstruction',
-                        opts=dict(title=str(self.global_iter)), nrow=10)
-        self.net_mode(train=True)
 
     def vis_lines(self):
         self.net_mode(train=False)
         recon_losses = torch.stack(self.gather.data['recon_loss']).cpu()
 
         mus = torch.stack(self.gather.data['mu']).cpu()
-        vars = torch.stack(self.gather.data['var']).cpu()
+        variances = torch.stack(self.gather.data['var']).cpu()
 
         dim_wise_klds = torch.stack(self.gather.data['dim_wise_kld'])
         mean_klds = torch.stack(self.gather.data['mean_kld'])
@@ -210,20 +176,20 @@ class Solver(object):
         klds = torch.cat([dim_wise_klds, mean_klds, total_klds], 1).cpu()
         iters = torch.Tensor(self.gather.data['iter'])
 
+        def update_win(Y, win, legend=None, title=''):
+            return self.vis.line(X=iters, Y=Y, env=self.args.vis_name+'_lines', win=win, update='append',
+                                 opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
+
         legend = []
         for z_j in range(self.args.z_dim):
             legend.append('z_{}'.format(z_j))
         legend.append('mean')
         legend.append('total')
 
-        def update_win(Y, win, title):
-            return self.vis.line(X=iters, Y=Y, env=self.args.vis_name+'_lines', win=win, update='append',
-                                 opts=dict( width=400, height=400, xlabel='iteration', title=title,))
-
         self.win_recon = update_win(recon_losses, self.win_recon, 'reconstruction loss')
-        self.win_kld = update_win(klds, self.win_kld, 'kl divergence')
-        self.win_mu = update_win(mus, self.win_mu, 'posterior mean')
-        self.win_var = update_win(vars, self.win_var, 'posterior variance')
+        self.win_kld = update_win(klds, self.win_kld, legend, 'kl divergence')
+        self.win_mu = update_win(mus, self.win_mu, legend[self.args.z_dim], 'posterior mean')
+        self.win_var = update_win(variances, self.win_var, legend[self.args.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
 
@@ -307,15 +273,6 @@ class Solver(object):
 
         self.net_mode(train=True)
 
-    def net_mode(self, train):
-        if not isinstance(train, bool):
-            raise('Only bool type is supported. True or False')
-
-        if train:
-            self.net.train()
-        else:
-            self.net.eval()
-
     def save_checkpoint(self, filename, silent=True):
         model_states = {'net':self.net.state_dict(),}
         optim_states = {'optim':self.optim.state_dict(),}
@@ -348,3 +305,70 @@ class Solver(object):
             print("=> loaded checkpoint '{} (iter {})'".format(file_path, self.global_iter))
         else:
             print("=> no checkpoint found at '{}'".format(file_path))
+
+
+def ori_beta_VAE(super_beta_VAE):
+    def __init__(self):
+        pass
+
+def beta_VAE(super_beta_VAE):
+    def __init__(self):
+        pass
+
+def DAE(Solver):
+    def __init__(self):
+        pass
+
+def SCAN(Solver):
+    def __init__(self):
+        pass
+
+
+def reconstruction_loss(x, x_recon, distribution):
+    batch_size = x.size(0)
+    assert batch_size != 0
+
+    if distribution == 'bernoulli':
+        recon_loss = F.binary_cross_entropy_with_logits(x_recon, x, size_average=False).div(batch_size)
+    elif distribution == 'gaussian':
+        x_recon = F.sigmoid(x_recon)
+        recon_loss = F.mse_loss(x_recon, x, size_average=False).div(batch_size)
+    else:
+        recon_loss = None
+    return recon_loss
+
+def kl_divergence(mu, logvar):
+    batch_size = mu.size(0)
+    assert batch_size != 0
+    if mu.data.ndimension() == 4:
+        mu = mu.view(mu.size(0), mu.size(1))
+    if logvar.data.ndimension() == 4:
+        logvar = logvar.view(logvar.size(0), logvar.size(1))
+
+    klds = -0.5*(1 + logvar - mu.pow(2) - logvar.exp())
+    total_kld = klds.sum(1).mean(0, True)
+    dimension_wise_kld = klds.mean(0)
+    mean_kld = klds.mean(1).mean(0, True)
+
+    return total_kld, dimension_wise_kld, mean_kld
+
+class DataGather(object):
+    def __init__(self):
+        self.data = self.get_empty_data_dict()
+
+    def get_empty_data_dict(self):
+        return dict(iter=[],
+                    recon_loss=[],
+                    total_kld=[],
+                    dim_wise_kld=[],
+                    mean_kld=[],
+                    mu=[],
+                    var=[],
+                    images=[],)
+
+    def insert(self, **kwargs):
+        for key in kwargs:
+            self.data[key].append(kwargs[key])
+
+    def flush(self):
+        self.data = self.get_empty_data_dict()

@@ -6,30 +6,16 @@ import os
 import numpy as np
 import torch
 
-from solver import Solver
+from solver import ori_beta_VAE, DAE, beta_VAE, SCAN
 from utils import str2bool
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
 
+parser = argparse.ArgumentParser()
 
-def main(args):
-    seed = args.seed
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    np.random.seed(seed)
-
-    net = Solver(args)
-
-    if args.train:
-        net.train()
-    else:
-        net.vis_traverse()
-
-parser = argparse.ArgumentParser(description='toy Beta-VAE')
-
-parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training,\
-                    which has a total of 3 stages: {DAE, beta-VAE, SCAN}')
+parser.add_argument('--SCAN', action='store_true', help='whether to train a SCAN model or the original beta-VAE model')
+parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training, which has 3 stages: {DAE, beta-VAE, SCAN}')
 
 parser.add_argument('--image_size', default=64, type=int, help='image size. now only (64,64) is supported')
 parser.add_argument('--num_workers', default=2, type=int, help='dataloader num_workers')
@@ -58,19 +44,44 @@ parser.add_argument('--display_step', default=10000, type=int, help='number of i
 parser.add_argument('--save_step', default=10000, type=int, help='number of iterations after which a checkpoint is saved')
 
 parser.add_argument('--root_dir', default='/data/hc/SCAN', type=str, help='root directory')
+parser.add_argument('--env_dir', default='ori_beta_VAE', type=str, help='environment directory')
+parser.add_argument('--ref_env_dir', default='', type=str, help='directory of the reference model')
 parser.add_argument('--dset_dir', default='dataset', type=str, help='dataset directory')
 parser.add_argument('--dataset', default='CelebA', type=str, help='dataset name')
 parser.add_argument('--save_output', default=True, type=str2bool, help='save traverse images and gif')
 parser.add_argument('--output_dir', default='outputs', type=str, help='output directory')
 parser.add_argument('--ckpt_dir', default='checkpoints', type=str, help='checkpoint directory')
-parser.add_argument('--ckpt_name', default='last', type=str, help='load previous checkpoint. insert checkpoint filename')
+parser.add_argument('--ckpt_name', default='last', type=str, help='name of the previous checkpoint')
 
 args = parser.parse_args()
 
-args.dset_dir = os.path.join(args.root_dir, args.dset_dir)
-args.output_dir = os.path.join(args.root_dir, args.output_dir, args.vis_name)
-args.ckpt_dir = os.path.join(args.root_dir, args.ckpt_dir, args.vis_name)
+args.dset_dir = os.path.join(args.root_dir, args.env_dir, args.dset_dir)
+args.output_dir = os.path.join(args.root_dir, args.env_dir, args.output_dir, args.vis_name)
+args.ckpt_dir = os.path.join(args.root_dir, args.env_dir, args.ckpt_dir, args.vis_name)
+
 args.cuda = args.cuda and torch.cuda.is_available()
+
+def main(args):
+    seed = args.seed
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    np.random.seed(seed)
+
+    if not args.SCAN:
+        model = ori_beta_VAE
+    else:
+        if args.phase == 'DAE':
+            model = DAE
+        elif args.phase == 'beta_VAE':
+            model = beta_VAE
+        elif args.phase == 'SCAN':
+            model = SCAN
+    model = model(args)
+
+    if args.train:
+        model.train()
+    else:
+        model.vis_traverse()
 
 if __name__ == "__main__":
     main(args)
