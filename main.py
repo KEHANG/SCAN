@@ -39,8 +39,7 @@ parser.add_argument('--beta2', default=0.999, type=float, help='Adam optimizer b
 parser.add_argument('--vis_on', default=True, type=str2bool, help='enable visdom visualization')
 parser.add_argument('--vis_port', default=6059, type=str, help='visdom port number')
 parser.add_argument('--gather_step', default=1000, type=int, help='numer of iterations after which data is gathered for visdom')
-parser.add_argument('--display_step', default=10000, type=int, help='number of iterations after which loss data is printed and visdom is updated')
-parser.add_argument('--save_step', default=10000, type=int, help='number of iterations after which a checkpoint is saved')
+parser.add_argument('--display_save_step', default=10000, type=int, help='number of iterations after which to display data and save checkpoint')
 
 parser.add_argument('--root_dir', default='/data/hc/SCAN', type=str, help='root directory')
 parser.add_argument('--env_name', default='trial', type=str, help='visdom env name')

@@ -52,7 +52,7 @@ class Solver(object):
                 loss.backward()
                 self.optim.step()
 
-                if self.global_iter%self.args.save_step == 0:
+                if self.global_iter%self.args.display_save_step == 0:
                     self.save_checkpoint(str(self.global_iter))
                     self.save_checkpoint('last')
                     self.pbar.write('Saved checkpoint(iter:{})'.format(self.global_iter))
@@ -147,7 +147,7 @@ class super_beta_VAE(Solver):
                                recon_loss=recon_loss.data, total_kld=total_kld.data,
                                dim_wise_kld=dim_wise_kld.data, mean_kld=mean_kld.data)
 
-        if self.global_iter%self.args.display_step == 0:
+        if self.global_iter%self.args.display_save_step == 0:
             self.pbar.write('[{}] recon_loss:{:.3f} total_kld:{:.3f} mean_kld:{:.3f}'.format(
                 self.global_iter, recon_loss.data[0], total_kld.data[0], mean_kld.data[0]))
 
