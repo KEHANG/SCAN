@@ -10,6 +10,7 @@ import visdom
 import random
 
 import torch
+import numpy
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -428,8 +429,10 @@ def random_occluding(images, size, ratio=0.4):
         y_span = y * ratio
         left = random.randint(0, int(x - x_span))
         down = random.randint(0, int(y - y_span))
-        mask = torch.zeros(size + [nc], dtype=torch.int32)
+        mask = numpy.zeros(size + [nc], dtype=float)
         mask[left : left+x_span, down : down+y_span, :] = 1
+        return mask
+
     masks = torch.stack([random_mask() for i in range(batch_size)])
     occluded = torch.Tensor.masked_fill_(masks, 0)
     return occluded
