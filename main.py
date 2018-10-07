@@ -35,6 +35,7 @@ parser.add_argument('--C_stop_iter', default=1e5, type=float, help='when to stop
 parser.add_argument('--lr', default=1e-4, type=float, help='learning rate')
 parser.add_argument('--beta1', default=0.9, type=float, help='Adam optimizer beta1')
 parser.add_argument('--beta2', default=0.999, type=float, help='Adam optimizer beta2')
+parser.add_argument('--epsilon', default=1e-8, type=float, help='Adam optimizer epsilon')
 
 parser.add_argument('--vis_on', default=True, type=str2bool, help='enable visdom visualization')
 parser.add_argument('--vis_port', default=6059, type=str, help='visdom port number')

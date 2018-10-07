@@ -22,7 +22,7 @@ class View(nn.Module):
         return tensor.view(self.size)
 
 
-class BetaVAE_H(nn.Module):
+class BetaVAE_H_net(nn.Module):
     """Model proposed in original beta-VAE paper(Higgins et al, ICLR, 2017)."""
 
     def __init__(self, z_dim=10, nc=3):
@@ -81,7 +81,7 @@ class BetaVAE_H(nn.Module):
         return self.decoder(z)
 
 
-class BetaVAE_B(BetaVAE_H):
+class BetaVAE_B_net(BetaVAE_H):
     """Model proposed in understanding beta-VAE paper(Burgess et al, arxiv:1804.03599, 2018)."""
 
     def __init__(self, z_dim=10, nc=1):

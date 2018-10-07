@@ -4,6 +4,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import os
+from abc import ABC, abstractmethod
 from tqdm import tqdm
 import visdom
 
@@ -14,14 +15,30 @@ from torch.autograd import Variable
 from torchvision.utils import make_grid, save_image
 
 from utils import cuda, grid2gif
-from model import BetaVAE_H, BetaVAE_B
+from model import BetaVAE_H_net, BetaVAE_B_net, DAE_net, SCAN_net
 from dataset import return_data
 
-class Solver(object):
+
+class Solver(ABC):
     def __init__(self, args):
         self.global_iter = 0
         self.args = args
 
+        if args.dataset.lower() == 'dsprites':
+            self.nc = 1
+            self.decoder_dist = 'bernoulli'
+        elif args.dataset.lower() == '3dchairs':
+            self.nc = 3
+            self.decoder_dist = 'gaussian'
+        elif args.dataset.lower() == 'celeba':
+            self.nc = 3
+            self.decoder_dist = 'gaussian'
+        else:
+            raise NotImplementedError
+    def set_net_and_optim(self, net):
+        self.net = cuda(net(self.args.z_dim, self.nc), self.args.cuda)
+        self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
+                               betas=(self.args.beta1, self.args.beta2), eps=self.args.epsilon)
     def clean_workspace(self):
         if not os.path.exists(self.args.ckpt_dir):
             os.makedirs(self.args.ckpt_dir, exist_ok=True)
@@ -31,9 +48,17 @@ class Solver(object):
 
         self.gather = DataGather()
 
+    @abstractmethod
     def prepare_training(self):
         pass
+    @abstractmethod
     def training_process(self, x):
+        pass
+    @abstractmethod
+    def get_win_states(self):
+        pass
+    @abstractmethod
+    def load_win_states(self):
         pass
 
     def train(self):
@@ -47,14 +72,15 @@ class Solver(object):
                 self.global_iter += 1
                 self.pbar.update(1)
 
+                x = Variable(cuda(x, self.args.cuda))
                 loss = self.training_process(x)
                 self.optim.zero_grad()
                 loss.backward()
                 self.optim.step()
 
                 if self.global_iter%self.args.display_save_step == 0:
-                    self.save_checkpoint(str(self.global_iter))
-                    self.save_checkpoint('last')
+                    self.save_checkpoint(self.get_win_states(), str(self.global_iter))
+                    self.save_checkpoint(self.get_win_states(), 'last')
                     self.pbar.write('Saved checkpoint(iter:{})'.format(self.global_iter))
 
         self.pbar.write("[Training Finished]")
@@ -70,10 +96,24 @@ class Solver(object):
         self.vis.images(images, env=self.args.env_name+'_reconstruction',
                         opts=dict(title=str(self.global_iter)), nrow=10)
         self.net_mode(train=True)
+    def vis(self, x, x_recon, traverse=True):
+        if self.args.vis_on:
+            self.gather.insert(images=x.data)
+            self.gather.insert(images=F.sigmoid(x_recon).data)
+            self.vis_reconstruction()
+            self.vis_lines()
+            self.gather.flush()
 
-    def vis_lines(self):
-        pass
-    
+        if (self.args.vis_on or self.args.save_output) and traverse:
+            self.vis_traverse()
+
+    def update_win(self, Y, win, legend, title):
+        iters =  torch.Tensor(self.gather.data['iter'])
+        opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,)
+        if win is None:
+            return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
+        else:
+            return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='append', opts=opts)
     def net_mode(self, train):
         if not isinstance(train, bool):
             raise('Only bool type is supported. True or False')
@@ -82,38 +122,43 @@ class Solver(object):
         else:
             self.net.eval()
 
-    def save_checkpoint(self, filename):
-        pass
+    def save_checkpoint(self, win_states, filename, silent=True):
+        states = {'iter': self.global_iter,
+                  'win_states': win_states,
+                  'net_states': self.net.state_dict(),
+                  'optim_states': self.optim.state_dict(),}
+
+        file_path = os.path.join(self.args.ckpt_dir, filename)
+        with open(file_path, mode='wb+') as f:
+            torch.save(states, f)
+        if not silent:
+            print("=> saved checkpoint '{}' (iter {})".format(file_path, self.global_iter))
     def load_checkpoint(self, filename):
-        pass
+        file_path = os.path.join(self.args.ckpt_dir, filename)
+        if os.path.isfile(file_path):
+            checkpoint = torch.load(file_path)
+            self.global_iter = checkpoint['iter']
+            self.load_win_states(checkpoint['win_states'])
+            self.net.load_state_dict(checkpoint['net_states'])
+            self.optim.load_state_dict(checkpoint['optim_states'])
+            print("=> loaded checkpoint '{} (iter {})'".format(file_path, self.global_iter))
+        else:
+            print("=> no checkpoint found at '{}'".format(file_path))
+
 
 
 class super_beta_VAE(Solver):
     def __init__(self, args):
         super(super_beta_VAE, self).__init__(args)
 
-        if args.dataset.lower() == 'dsprites':
-            self.nc = 1
-            self.decoder_dist = 'bernoulli'
-        elif args.dataset.lower() == '3dchairs':
-            self.nc = 3
-            self.decoder_dist = 'gaussian'
-        elif args.dataset.lower() == 'celeba':
-            self.nc = 3
-            self.decoder_dist = 'gaussian'
-        else:
-            raise NotImplementedError
-
         if args.model == 'H':
-            net = BetaVAE_H
+            net = BetaVAE_H_net
         elif args.model == 'B':
-            net = BetaVAE_B
+            net = BetaVAE_B_net
         else:
             raise NotImplementedError('only support model H or B')
 
-        self.net = cuda(net(self.args.z_dim, self.nc), self.args.cuda)
-        self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
-                                    betas=(self.args.beta1, self.args.beta2))
+        self.set_net_and_optim(net)
 
         self.win_recon = None
         self.win_kld = None
@@ -128,9 +173,7 @@ class super_beta_VAE(Solver):
 
     def prepare_training(self):
         self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
-
     def training_process(self, x):
-        x = Variable(cuda(x, self.args.cuda))
         x_recon, mu, logvar = self.net(x)
         recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
         total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
@@ -141,13 +184,13 @@ class super_beta_VAE(Solver):
             C = torch.clamp(self.args.C_max/self.args.C_stop_iter*self.global_iter, 0, self.args.C_max.data[0])
             loss = recon_loss + self.args.gamma*(total_kld-C).abs()
 
-        if self.args.vis_on and self.global_iter%self.args.gather_step == 0:
+        if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
             self.gather.insert(iter=self.global_iter,
                                mu=mu.mean(0).data, var=logvar.exp().mean(0).data,
                                recon_loss=recon_loss.data, total_kld=total_kld.data,
                                dim_wise_kld=dim_wise_kld.data, mean_kld=mean_kld.data)
 
-        if self.global_iter%self.args.display_save_step == 0:
+        if self.global_iter % self.args.display_save_step == 0:
             self.pbar.write('[{}] recon_loss:{:.3f} total_kld:{:.3f} mean_kld:{:.3f}'.format(
                 self.global_iter, recon_loss.data[0], total_kld.data[0], mean_kld.data[0]))
 
@@ -160,15 +203,7 @@ class super_beta_VAE(Solver):
             if self.args.objective == 'B':
                 self.pbar.write('C:{:.3f}'.format(C.data[0]))
 
-            if self.args.vis_on:
-                self.gather.insert(images=x.data)
-                self.gather.insert(images=F.sigmoid(x_recon).data)
-                self.vis_reconstruction()
-                self.vis_lines()
-                self.gather.flush()
-
-            if self.args.vis_on or self.args.save_output:
-                self.vis_traverse()
+            self.vis(x, x_recon)
 
         return loss
 
@@ -183,14 +218,6 @@ class super_beta_VAE(Solver):
         mean_klds = torch.stack(self.gather.data['mean_kld'])
         total_klds = torch.stack(self.gather.data['total_kld'])
         klds = torch.cat([dim_wise_klds, mean_klds, total_klds], 1).cpu()
-        iters = torch.Tensor(self.gather.data['iter'])
-
-        def update_win(Y, win, legend, title):
-            opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,)
-            if win is None:
-                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
-            else:
-                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='append', opts=opts)
 
         legend = []
         for z_j in range(self.args.z_dim):
@@ -198,13 +225,12 @@ class super_beta_VAE(Solver):
         legend.append('mean')
         legend.append('total')
 
-        self.win_recon = update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
-        self.win_kld = update_win(klds, self.win_kld, legend, 'kl divergence')
-        self.win_mu = update_win(mus, self.win_mu, legend[:self.args.z_dim], 'posterior mean')
-        self.win_var = update_win(variances, self.win_var, legend[:self.args.z_dim], 'posterior variance')
+        self.win_recon = self.update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
+        self.win_kld = self.update_win(klds, self.win_kld, legend, 'kl divergence')
+        self.win_mu = self.update_win(mus, self.win_mu, legend[:self.args.z_dim], 'posterior mean')
+        self.win_var = self.update_win(variances, self.win_var, legend[:self.args.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
-
     def vis_traverse(self, limit=3, inter=2/3, loc=-1):
         self.net_mode(train=False)
         import random
@@ -285,43 +311,22 @@ class super_beta_VAE(Solver):
 
         self.net_mode(train=True)
 
-    def save_checkpoint(self, filename, silent=True):
-        model_states = {'net':self.net.state_dict(),}
-        optim_states = {'optim':self.optim.state_dict(),}
-        win_states = {'recon':self.win_recon,
-                      'kld':self.win_kld,
-                      'mu':self.win_mu,
-                      'var':self.win_var,}
-        states = {'iter':self.global_iter,
-                  'win_states':win_states,
-                  'model_states':model_states,
-                  'optim_states':optim_states}
-
-        file_path = os.path.join(self.args.ckpt_dir, filename)
-        with open(file_path, mode='wb+') as f:
-            torch.save(states, f)
-        if not silent:
-            print("=> saved checkpoint '{}' (iter {})".format(file_path, self.global_iter))
-
-    def load_checkpoint(self, filename):
-        file_path = os.path.join(self.args.ckpt_dir, filename)
-        if os.path.isfile(file_path):
-            checkpoint = torch.load(file_path)
-            self.global_iter = checkpoint['iter']
-            self.win_recon = checkpoint['win_states']['recon']
-            self.win_kld = checkpoint['win_states']['kld']
-            self.win_var = checkpoint['win_states']['var']
-            self.win_mu = checkpoint['win_states']['mu']
-            self.net.load_state_dict(checkpoint['model_states']['net'])
-            self.optim.load_state_dict(checkpoint['optim_states']['optim'])
-            print("=> loaded checkpoint '{} (iter {})'".format(file_path, self.global_iter))
-        else:
-            print("=> no checkpoint found at '{}'".format(file_path))
+    def get_win_states(self):
+        return {'recon': self.win_recon,
+                'kld': self.win_kld,
+                'mu': self.mu,
+                'var': self.var,}
+    def load_win_states(self, win_states):
+        self.win_recon = win_states['recon']
+        self.win_kld = win_states['kld']
+        self.win_var = win_states['var']
+        self.win_mu = win_states['mu']
 
 
 class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(ori_beta_VAE, self).__init__(args)
+
 
 class beta_VAE(super_beta_VAE):
     def __init__(self, args):
@@ -332,11 +337,49 @@ class beta_VAE(super_beta_VAE):
 
 class DAE(Solver):
     def __init__(self, args):
+        super(Solver, self).__init__(args)
+
+        self.set_net_and_optim(DAE_net)
+
+        self.win_recon = None
+        if self.args.vis_on:
+            self.vis = visdom.Visdom(port=self.args.vis_port)
+        self.data_loader = return_data(self.args, occlusion=True)
+
+        self.clean_workspace()
+
+    def prepare_training(self):
         pass
+    def training_process(self, x):
+        x_recon = self.net(x)
+        recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
+        loss = recon_loss
+
+        if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
+            self.gather.insert(iter=self.global_iter, recon_loss=recon_loss.data)
+        if self.global_iter % self.args.display_save_step == 0:
+            self.pbar.write('[{}] recon_loss:{:.3f}'.format(self.global_iter, recon_loss.data[0]))
+            self.vis(x, x_recon, traverse=False)
+
+        return loss
+
+    def get_win_states(self):
+        return {'recon': self.win_recon}
+    def load_win_states(self, win_states):
+        self.win_recon = win_states['recon']
+
+    def vis_lines(self):
+        self.net_mode(train=False)
+        recon_losses = torch.stack(self.gather.data['recon_loss']).cpu()
+        self.win_recon = self.update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
+        self.net_mode(train=True)
+
 
 class SCAN(Solver):
     def __init__(self, args):
-        pass
+        super(SCAN, self).__init__(args)
+
+        self.set_net_and_optim(SCAN_net)
 
 
 def reconstruction_loss(x, x_recon, distribution):
