@@ -335,7 +335,7 @@ class beta_VAE(super_beta_VAE):
 class DAE(Solver):
     def __init__(self, args):
         self.win_recon = None
-        super(Solver, self).__init__(args, DAE_net)
+        super(DAE, self).__init__(args, DAE_net)
 
     def prepare_training(self):
         pass
