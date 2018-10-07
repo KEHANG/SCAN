@@ -381,11 +381,24 @@ class SCAN(Solver):
         self.win_relv = None
         self.win_mu = None
         self.win_var = None
+        self.keys = None
 
         super(SCAN, self).__init__(args)
 
-    def training_process(self, x):
-        pass
+        beta_VAE_solver = beta_VAE(args)
+        beta_VAE_solver.net_mode(train=False)
+        self.beta_VAE_net = beta_VAE_solver.net
+
+    def training_process(self, data):
+        [x, y, keys] = data
+        if self.keys is None:
+            self.keys = keys
+        y_recon, mu_y, logvar_y = self.net(y)
+        z_x = self.beta_VAE_net._encode(x)
+        mu_x = z_x[:self.args.beta_VAE_z_dim]
+        logvar_x = z_x[self.args.beta_VAE_z_dim:]
+
+
 
 
 def reconstruction_loss(X, Y, distribution):
@@ -440,6 +453,7 @@ class DataGather(object):
         return dict(iter=[],
                     recon_loss=[],
                     kld=[],
+                    relv=[],
                     mu=[],
                     var=[],
                     images=[],)

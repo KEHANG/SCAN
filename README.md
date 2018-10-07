@@ -33,7 +33,7 @@ To view them, you can also refer to the parent repo [Github Repo][]
 
 Acknowledgement:
 
-    I've referred to [this issue](https://github.com/miyosuda/scan/issues/1), and used the DAE output to improve the visuality of beta-VAE.
+I've referred to [this issue](https://github.com/miyosuda/scan/issues/1), and used the DAE output to improve the visuality of beta-VAE.
 
 ### Reference
 1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
