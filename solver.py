@@ -340,8 +340,6 @@ class beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(beta_VAE, self).__init__(args)
 
-        args = self.args
-        args.ckpt_dir = args.ref_ckpt_dir
         DAE_solver = DAE(args)
         DAE_solver.net_mode(train=False)
         self.DAE_net = DAE_solver.net
