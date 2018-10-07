@@ -69,6 +69,7 @@ def main(args):
 
     if not args.SCAN:
         model = ori_beta_VAE
+        print("not SCAN")
     else:
         if args.phase == 'DAE':
             model = DAE
@@ -77,6 +78,7 @@ def main(args):
         elif args.phase == 'SCAN':
             model = SCAN
 
+    print(model)
     model = model(args)
     print(model)
 
