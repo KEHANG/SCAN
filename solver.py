@@ -98,7 +98,7 @@ class Solver(ABC):
         self.vis.images(images, env=self.args.env_name+'_reconstruction',
                         opts=dict(title=str(self.global_iter)), nrow=10)
         self.net_mode(train=True)
-    def vis(self, x, x_recon, traverse=True):
+    def vis_display(self, x, x_recon, traverse=True):
         if self.args.vis_on:
             self.gather.insert(images=x.data)
             self.gather.insert(images=F.sigmoid(x_recon).data)
@@ -196,7 +196,7 @@ class super_beta_VAE(Solver):
             if self.args.objective == 'B':
                 self.pbar.write('C:{:.3f}'.format(C.data[0]))
 
-            self.vis(x, x_recon)
+            self.vis_display(x, x_recon)
 
         return loss
 
@@ -339,7 +339,6 @@ class DAE(Solver):
     def prepare_training(self):
         pass
     def training_process(self, x):
-
         x_recon = self.net(x)
         recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
         loss = recon_loss
@@ -348,7 +347,7 @@ class DAE(Solver):
             self.gather.insert(iter=self.global_iter, recon_loss=recon_loss.data)
         if self.global_iter % self.args.display_save_step == 0:
             self.pbar.write('[{}] recon_loss:{:.3f}'.format(self.global_iter, recon_loss.data[0]))
-            self.vis(x, x_recon, traverse=False)
+            self.vis_display(x, x_recon, traverse=False)
 
         return loss
 
