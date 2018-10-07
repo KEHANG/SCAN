@@ -385,6 +385,7 @@ class SCAN(Solver):
         super(SCAN, self).__init__(args)
 
     def training_process(self, x):
+        pass
 
 
 def reconstruction_loss(X, Y, distribution):
