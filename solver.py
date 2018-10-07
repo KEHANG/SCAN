@@ -195,8 +195,6 @@ class super_beta_VAE(Solver):
                                recon_loss=recon_loss.data, dim_wise_kld=dim_wise_kld.data)
 
         if self.global_iter % self.args.display_save_step == 0:
-            if self.args.objective == 'B':
-                self.pbar.write('C:{:.3f}'.format(C.data[0]))
             self.vis_display([x, self.visual(x_recon)])
 
         return loss
