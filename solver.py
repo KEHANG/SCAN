@@ -90,7 +90,7 @@ class Solver(object):
 
 class super_beta_VAE(Solver):
     def __init__(self, args):
-        super(super_beta_VAE, self).__init__()
+        super(super_beta_VAE, self).__init__(args)
 
         if args.dataset.lower() == 'dsprites':
             self.nc = 1
@@ -171,7 +171,6 @@ class super_beta_VAE(Solver):
                 self.vis_traverse()
 
         return loss
-
 
     def vis_lines(self):
         self.net_mode(train=False)
@@ -318,8 +317,8 @@ class super_beta_VAE(Solver):
 
 
 def ori_beta_VAE(super_beta_VAE):
-    def __init__(self):
-        pass
+    def __init__(self, args):
+        super(ori_beta_VAE, self).__init__(args)
 
 def beta_VAE(super_beta_VAE):
     def __init__(self):

@@ -76,6 +76,7 @@ def main(args):
             model = beta_VAE
         elif args.phase == 'SCAN':
             model = SCAN
+
     model = model(args)
 
     if args.train:
