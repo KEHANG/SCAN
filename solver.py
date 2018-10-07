@@ -429,7 +429,7 @@ def random_occluding(images, size, ratio=0.4):
         y_span = int(y * ratio)
         left = random.randint(0, x - x_span)
         down = random.randint(0, y - y_span)
-        mask = torch.zeros(size + [nc], dtype=float)
+        mask = torch.zeros(size + [nc], dtype=torch.int32)
         mask[left : left+x_span, down : down+y_span, :] = 1
         return mask
 
