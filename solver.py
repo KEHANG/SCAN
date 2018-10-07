@@ -7,6 +7,7 @@ import os
 from abc import ABC, abstractmethod
 from tqdm import tqdm
 import visdom
+import random
 
 import torch
 import torch.optim as optim
@@ -339,7 +340,8 @@ class DAE(Solver):
     def prepare_training(self):
         pass
     def training_process(self, x):
-        x_recon = self.net(x)
+        masked = random_occluding(x, [self.args.batch_size, self.args.image_size, self.args.image_size, self.nc])
+        x_recon = self.net(masked)
         recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
         loss = recon_loss
 
@@ -418,3 +420,16 @@ class DataGather(object):
 
     def flush(self):
         self.data = self.get_empty_data_dict()
+
+def random_occluding(images, size, ratio=0.4):
+    (batch_size, x, y, nc) = size
+    def random_mask():
+        x_span = x * ratio
+        y_span = y * ratio
+        left = random.randint(0, int(x - x_span))
+        down = random.randint(0, int(y - y_span))
+        mask = torch.zeros(size + [nc], dtype=torch.int32)
+        mask[left : left+x_span, down : down+y_span, :] = 1
+    masks = torch.stack([random_mask() for i in range(batch_size)])
+    occluded = torch.Tensor.masked_fill_(masks, 0)
+    return occluded
