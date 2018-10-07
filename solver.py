@@ -98,7 +98,7 @@ class Solver(ABC):
         x_recon = self.gather.data['images'][1][:100]
         x_recon = make_grid(x_recon, normalize=True)
         images = torch.stack([x, x_recon], dim=0).cpu()
-        self.vis.images(images, env=self.args.env_name+'_reconstruction',
+        self.vis.images(images, env=self.env_name+'_reconstruction',
                         opts=dict(title=str(self.global_iter)), nrow=10)
         self.net_mode(train=True)
     def vis_display(self, image_set, traverse=True):
@@ -113,12 +113,12 @@ class Solver(ABC):
             self.vis_traverse()
 
     def update_win(self, Y, win, legend, title):
-        iters =  torch.Tensor(self.gather.data['iter'])
+        iters = torch.Tensor(self.gather.data['iter'])
         opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,)
         if win is None:
-            return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
+            return self.vis.line(X=iters, Y=Y, env=self.env_name+'_lines', opts=opts)
         else:
-            return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='append', opts=opts)
+            return self.vis.line(X=iters, Y=Y, env=self.env_name+'_lines', win=win, update='append', opts=opts)
     def net_mode(self, train):
         if not isinstance(train, bool):
             raise('Only bool type is supported. True or False')
@@ -151,7 +151,7 @@ class Solver(ABC):
             print("=> no checkpoint found at '{}'".format(file_path))
             keys = ['lines', 'reconstruction', 'traverse']
             for key in keys:
-                env_name = self.args.env_name + '_' + key
+                env_name = self.env_name + '_' + key
                 self.vis.delete_env(env_name)
 
 #---------------------------------NEW CLASS-------------------------------------#
@@ -295,7 +295,7 @@ class super_beta_VAE(Solver):
             title = '{}_latent_traversal(iter:{})'.format(key, self.global_iter)
 
             if self.args.vis_on:
-                self.vis.images(samples, env=self.args.env_name+'_traverse',
+                self.vis.images(samples, env=self.env_name+'_traverse',
                                 opts=dict(title=title), nrow=len(interpolation))
 
         if self.args.save_output:
