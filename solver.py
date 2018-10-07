@@ -90,7 +90,7 @@ class Solver(object):
 
 class super_beta_VAE(Solver):
     def __init__(self, args):
-        super(super_beta_VAE, self).__init__(args)
+        super(args)
 
         if args.dataset.lower() == 'dsprites':
             self.nc = 1
@@ -318,21 +318,21 @@ class super_beta_VAE(Solver):
 
 def ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
-        super(ori_beta_VAE, self).__init__(args)
+        super(args)
 
 def beta_VAE(super_beta_VAE):
-    def __init__(self):
+    def __init__(self, args):
         pass
 
     def load_DAE_checkpoint(self):
         pass
 
 def DAE(Solver):
-    def __init__(self):
+    def __init__(self, args):
         pass
 
 def SCAN(Solver):
-    def __init__(self):
+    def __init__(self, args):
         pass
 
 
