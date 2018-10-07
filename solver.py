@@ -223,15 +223,15 @@ class super_beta_VAE(Solver):
         klds = torch.cat([dim_wise_klds, mean_klds, total_klds], 1).cpu()
 
         legend = []
-        for z_j in range(self.args.z_dim):
+        for z_j in range(self.z_dim):
             legend.append('z_{}'.format(z_j))
         legend.append('mean')
         legend.append('total')
 
         self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
         self.win_kld = self.update_win(klds, self.win_kld, legend, 'kl divergence')
-        self.win_mu = self.update_win(mus, self.win_mu, legend[:self.args.z_dim], 'posterior mean')
-        self.win_var = self.update_win(variances, self.win_var, legend[:self.args.z_dim], 'posterior variance')
+        self.win_mu = self.update_win(mus, self.win_mu, legend[:self.z_dim], 'posterior mean')
+        self.win_var = self.update_win(variances, self.win_var, legend[:self.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
     def vis_traverse(self, limit=3, inter=2/3, loc=-1):
@@ -247,9 +247,9 @@ class super_beta_VAE(Solver):
 
         random_img = self.data_loader.dataset.__getitem__(rand_idx)
         random_img = Variable(cuda(random_img, self.args.cuda), volatile=True).unsqueeze(0)
-        random_img_z = encoder(random_img)[:, :self.args.z_dim]
+        random_img_z = encoder(random_img)[:, :self.z_dim]
 
-        random_z = Variable(cuda(torch.rand(1, self.args.z_dim), self.args.cuda), volatile=True)
+        random_z = Variable(cuda(torch.rand(1, self.z_dim), self.args.cuda), volatile=True)
 
         if self.args.dataset == 'dsprites':
             fixed_idx1 = 87040 # square
@@ -258,15 +258,15 @@ class super_beta_VAE(Solver):
 
             fixed_img1 = self.data_loader.dataset.__getitem__(fixed_idx1)
             fixed_img1 = Variable(cuda(fixed_img1, self.args.cuda), volatile=True).unsqueeze(0)
-            fixed_img_z1 = encoder(fixed_img1)[:, :self.args.z_dim]
+            fixed_img_z1 = encoder(fixed_img1)[:, :self.z_dim]
 
             fixed_img2 = self.data_loader.dataset.__getitem__(fixed_idx2)
             fixed_img2 = Variable(cuda(fixed_img2, self.args.cuda), volatile=True).unsqueeze(0)
-            fixed_img_z2 = encoder(fixed_img2)[:, :self.args.z_dim]
+            fixed_img_z2 = encoder(fixed_img2)[:, :self.z_dim]
 
             fixed_img3 = self.data_loader.dataset.__getitem__(fixed_idx3)
             fixed_img3 = Variable(cuda(fixed_img3, self.args.cuda), volatile=True).unsqueeze(0)
-            fixed_img_z3 = encoder(fixed_img3)[:, :self.args.z_dim]
+            fixed_img_z3 = encoder(fixed_img3)[:, :self.z_dim]
 
             Z = {'fixed_square':fixed_img_z1, 'fixed_ellipse':fixed_img_z2,
                  'fixed_heart':fixed_img_z3, 'random_img':random_img_z}
@@ -274,7 +274,7 @@ class super_beta_VAE(Solver):
             fixed_idx = 0
             fixed_img = self.data_loader.dataset.__getitem__(fixed_idx)
             fixed_img = Variable(cuda(fixed_img, self.args.cuda), volatile=True).unsqueeze(0)
-            fixed_img_z = encoder(fixed_img)[:, :self.args.z_dim]
+            fixed_img_z = encoder(fixed_img)[:, :self.z_dim]
 
             Z = {'fixed_img':fixed_img_z, 'random_img':random_img_z, 'random_z':random_z}
 
@@ -282,7 +282,7 @@ class super_beta_VAE(Solver):
         for key in Z.keys():
             z_ori = Z[key]
             samples = []
-            for row in range(self.args.z_dim):
+            for row in range(self.z_dim):
                 if loc != -1 and row != loc:
                     continue
                 z = z_ori.clone()
@@ -302,12 +302,12 @@ class super_beta_VAE(Solver):
             output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
             os.makedirs(output_dir, exist_ok=True)
             gifs = torch.cat(gifs)
-            gifs = gifs.view(len(Z), self.args.z_dim, len(interpolation), self.nc, 64, 64).transpose(1, 2)
+            gifs = gifs.view(len(Z), self.z_dim, len(interpolation), self.nc, 64, 64).transpose(1, 2)
             for i, key in enumerate(Z.keys()):
                 for j, val in enumerate(interpolation):
                     save_image(tensor=gifs[i][j].cpu(),
                                filename=os.path.join(output_dir, '{}_{}.jpg'.format(key, j)),
-                               nrow=self.args.z_dim, pad_value=1)
+                               nrow=self.z_dim, pad_value=1)
 
                 grid2gif(os.path.join(output_dir, key+'*.jpg'),
                          os.path.join(output_dir, key+'.gif'), delay=10)
