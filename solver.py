@@ -90,6 +90,7 @@ class Solver(object):
 
 class super_beta_VAE(Solver):
     def __init__(self, args):
+        print('super.__init__')
         super(args)
 
         if args.dataset.lower() == 'dsprites':
@@ -318,6 +319,7 @@ class super_beta_VAE(Solver):
 
 def ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
+        print('ori.__init__')
         super(args)
 
 def beta_VAE(super_beta_VAE):
