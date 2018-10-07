@@ -143,7 +143,7 @@ class BetaVAE_B_net(BetaVAE_H_net):
         return self.decoder(z)
 
 
-class DAE(nn.Module):
+class DAE_net(nn.Module):
 
     def __init__(self, z_dim=10, nc=3):
         super(BetaVAE_H_net, self).__init__()
@@ -194,6 +194,9 @@ class DAE(nn.Module):
     def _decode(self, z):
         return self.decoder(z)
 
+class SCAN_net(nn.Module):
+    def __init__(self):
+        pass
 
 def kaiming_init(m):
     if isinstance(m, (nn.Linear, nn.Conv2d)):
