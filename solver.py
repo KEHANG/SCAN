@@ -341,7 +341,7 @@ class DAE(Solver):
     def prepare_training(self):
         pass
     def training_process(self, x):
-        masked = random_occluding(x, [self.args.batch_size, self.nc, self.args.image_size, self.args.image_size])
+        masked = random_occluding(x, [self.args.batch_size, self.nc, self.args.image_size, self.args.image_size], self.args.cuda)
         x_recon = self.net(masked)
         recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
         loss = recon_loss
@@ -422,7 +422,7 @@ class DataGather(object):
     def flush(self):
         self.data = self.get_empty_data_dict()
 
-def random_occluding(images, size, ratio=0.4):
+def random_occluding(images, size, ratio=0.4, cuda_or_not=True):
     (batch_size, nc, x, y) = size
     def random_mask():
         x_span = int(x * ratio)
@@ -434,5 +434,6 @@ def random_occluding(images, size, ratio=0.4):
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
+    masks = cuda(masks, cuda_or_not)
     occluded = images.masked_fill_(masks, 0)
     return occluded
