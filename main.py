@@ -68,19 +68,14 @@ def main(args):
     np.random.seed(seed)
 
     if not args.SCAN:
-        model = ori_beta_VAE
-        print("not SCAN")
+        model = ori_beta_VAE(args)
     else:
         if args.phase == 'DAE':
-            model = DAE
+            model = DAE(args)
         elif args.phase == 'beta_VAE':
-            model = beta_VAE
+            model = beta_VAE(args)
         elif args.phase == 'SCAN':
-            model = SCAN
-
-    print(model)
-    model = model(args)
-    print(model)
+            model = SCAN(args)
 
     if args.train:
         model.train()
