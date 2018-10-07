@@ -398,9 +398,10 @@ def reconstruction_loss(X, Y, distribution):
     assert batch_size != 0
 
     if distribution == 'bernoulli':
-        recon_loss = F.binary_cross_entropy_with_logits(Y, X, size_average=False).div(batch_size)
+        recon_loss = F.binary_cross_entropy_with_logits(Y, X, reduction='sum').div(batch_size)
     elif distribution == 'gaussian':
-        recon_loss = F.mse_loss(Y, X, size_average=False).div(batch_size)
+        #recon_loss = F.mse_loss(Y, X, reduction='sum').div(batch_size)
+        recon_loss = ((X - Y) ** 2).sum() / batch_size
     else:
         recon_loss = None
     return recon_loss
