@@ -180,33 +180,23 @@ class super_beta_VAE(Solver):
     def training_process(self, x):
         x_recon, mu, logvar = self.net(x)
         recon_loss = self.recon_loss_function(x, x_recon)
-        total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
+        dim_wise_kld = kl_divergence(mu, logvar)
+        total_kld = dim_wise_kld.sum()
 
         if self.args.objective == 'H':
-            loss = recon_loss + self.args.beta*total_kld
+            loss = recon_loss + self.args.beta * total_kld
         elif self.args.objective == 'B':
             C = torch.clamp(self.args.C_max/self.args.C_stop_iter*self.global_iter, 0, self.args.C_max.data[0])
-            loss = recon_loss + self.args.gamma*(total_kld-C).abs()
+            loss = recon_loss + self.args.gamma * (total_kld - C).abs()
 
         if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
             self.gather.insert(iter=self.global_iter,
                                mu=mu.mean(0).data, var=logvar.exp().mean(0).data,
-                               recon_loss=recon_loss.data, total_kld=total_kld.data,
-                               dim_wise_kld=dim_wise_kld.data, mean_kld=mean_kld.data)
+                               recon_loss=recon_loss.data, dim_wise_kld=dim_wise_kld.data)
 
         if self.global_iter % self.args.display_save_step == 0:
-            self.pbar.write('[{}] recon_loss:{:.3f} total_kld:{:.3f} mean_kld:{:.3f}'.format(
-                self.global_iter, recon_loss.data[0], total_kld.data[0], mean_kld.data[0]))
-
-            var = logvar.exp().mean(0).data
-            var_str = ''
-            for j, var_j in enumerate(var):
-                var_str += 'var{}:{:.4f} '.format(j+1, var_j)
-            self.pbar.write(var_str)
-
             if self.args.objective == 'B':
                 self.pbar.write('C:{:.3f}'.format(C.data[0]))
-
             self.vis_display([x, self.visual(x_recon)])
 
         return loss
@@ -218,16 +208,11 @@ class super_beta_VAE(Solver):
         mus = torch.stack(self.gather.data['mu']).cpu()
         variances = torch.stack(self.gather.data['var']).cpu()
 
-        dim_wise_klds = torch.stack(self.gather.data['dim_wise_kld'])
-        mean_klds = torch.stack(self.gather.data['mean_kld'])
-        total_klds = torch.stack(self.gather.data['total_kld'])
-        klds = torch.cat([dim_wise_klds, mean_klds, total_klds], 1).cpu()
+        klds = torch.stack(self.gather.data['dim_wise_kld']).cpu()
 
         legend = []
         for z_j in range(self.z_dim):
             legend.append('z_{}'.format(z_j))
-        legend.append('mean')
-        legend.append('total')
 
         self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
         self.win_kld = self.update_win(klds, self.win_kld, legend, 'kl divergence')
@@ -334,7 +319,6 @@ class ori_beta_VAE(super_beta_VAE):
 
     def recon_loss_function(self, x, x_recon):
         return reconstruction_loss(x, x_recon, self.decoder_dist)
-
     def visual(self, x):
         return x
 
@@ -349,7 +333,6 @@ class beta_VAE(super_beta_VAE):
 
     def recon_loss_function(self, x, x_recon):
         return reconstruction_loss(self.DAE_net._encode(x), self.DAE_net._encode(x_recon), self.decoder_dist)
-
     def visual(self, x):
         return self.DAE_net(x)
 
@@ -423,11 +406,25 @@ def kl_divergence(mu, logvar):
         logvar = logvar.view(logvar.size(0), logvar.size(1))
 
     klds = -0.5*(1 + logvar - mu.pow(2) - logvar.exp())
-    total_kld = klds.sum(1).mean(0, True)
     dimension_wise_kld = klds.mean(0)
-    mean_kld = klds.mean(1).mean(0, True)
 
-    return total_kld, dimension_wise_kld, mean_kld
+    return dimension_wise_kld
+
+def dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y):
+    batch_size = mu_x.size(0)
+    assert batch_size != 0
+    if mu_x.data.ndimension() == 4:
+        mu_x = mu_x.view(mu_x.size(0), mu_x.size(1))
+    if logvar_x.data.ndimension() == 4:
+        logvar_x = logvar_x.view(logvar_x.size(0), logvar_x.size(1))
+    if mu_y.data.ndimension() == 4:
+        mu_y = mu_y.view(mu_y.size(0), mu_y.size(1))
+    if logvar_y.data.ndimension() == 4:
+        logvar_y = logvar_y.view(logvar_y.size(0), logvar_y.size(1))
+
+    var_x = logvar_x.exp()
+    var_y = logvar_y.exp()
+    klds = 0.5 * (var_x / var_y + (mu_x - mu_y) ** 2 / var_y - 1 + logvar_y - logvar_x)
 
 class DataGather(object):
     def __init__(self):
@@ -436,9 +433,7 @@ class DataGather(object):
     def get_empty_data_dict(self):
         return dict(iter=[],
                     recon_loss=[],
-                    total_kld=[],
                     dim_wise_kld=[],
-                    mean_kld=[],
                     mu=[],
                     var=[],
                     images=[],)
