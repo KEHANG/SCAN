@@ -190,7 +190,7 @@ class super_beta_VAE(Solver):
             if win is None:
                 return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
             else:
-                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='remove', opts=opts)
+                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='replace', opts=opts)
 
         legend = []
         for z_j in range(self.args.z_dim):
