@@ -67,7 +67,7 @@ class Solver(object):
         x_recon = self.gather.data['images'][1][:100]
         x_recon = make_grid(x_recon, normalize=True)
         images = torch.stack([x, x_recon], dim=0).cpu()
-        self.vis.images(images, env=self.args.vis_name+'_reconstruction',
+        self.vis.images(images, env=self.args.env_name+'_reconstruction',
                         opts=dict(title=str(self.global_iter)), nrow=10)
         self.net_mode(train=True)
 
@@ -186,8 +186,12 @@ class super_beta_VAE(Solver):
         iters = torch.Tensor(self.gather.data['iter'])
 
         def update_win(Y, win, legend=None, title=''):
-            return self.vis.line(X=iters, Y=Y, env=self.args.vis_name+'_lines', win=win, update='replace',
-                                 opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
+            if win is None:
+                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines',
+                                     opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
+            else:
+                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='replace',
+                                     opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
 
         legend = []
         for z_j in range(self.args.z_dim):
@@ -263,7 +267,7 @@ class super_beta_VAE(Solver):
             title = '{}_latent_traversal(iter:{})'.format(key, self.global_iter)
 
             if self.args.vis_on:
-                self.vis.images(samples, env=self.args.vis_name+'_traverse',
+                self.vis.images(samples, env=self.args.env_name+'_traverse',
                                 opts=dict(title=title), nrow=len(interpolation))
 
         if self.args.save_output:
