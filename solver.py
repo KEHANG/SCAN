@@ -31,8 +31,35 @@ class Solver(object):
 
         self.gather = DataGather()
 
-    def train(self):
+    def prepare_training(self):
         pass
+    def training_process(self, x):
+        pass
+
+    def train(self):
+        self.net_mode(train=True)
+        self.prepare_training()
+
+        self.pbar = tqdm(total=self.args.max_iter)
+        self.pbar.update(self.global_iter)
+        while self.global_iter < self.args.max_iter:
+            for x in self.data_loader:
+                self.global_iter += 1
+                self.pbar.update(1)
+
+                loss = self.training_process(x)
+                self.optim.zero_grad()
+                loss.backward()
+                self.optim.step()
+
+                if self.global_iter%self.args.save_step == 0:
+                    self.save_checkpoint(str(self.global_iter))
+                    self.save_checkpoint('last')
+                    self.pbar.write('Saved checkpoint(iter:{})'.format(self.global_iter))
+
+        self.pbar.write("[Training Finished]")
+        self.pbar.close()
+
     def vis_reconstruction(self):
         self.net_mode(train=False)
         x = self.gather.data['images'][0][:100]
@@ -62,7 +89,6 @@ class Solver(object):
 
 
 class super_beta_VAE(Solver):
-
     def __init__(self, args):
         super(super_beta_VAE, self).__init__()
 
@@ -100,68 +126,52 @@ class super_beta_VAE(Solver):
 
         self.clean_workspace()
 
-    def train(self):
-        self.net_mode(train=True)
+    def prepare_training(self):
         self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
 
-        pbar = tqdm(total=self.args.max_iter)
-        pbar.update(self.global_iter)
-        while self.global_iter < self.args.max_iter:
-            for x in self.data_loader:
-                self.global_iter += 1
-                pbar.update(1)
+    def training_process(self, x):
+        x = Variable(cuda(x, self.args.cuda))
+        x_recon, mu, logvar = self.net(x)
+        recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
+        total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
 
-                x = Variable(cuda(x, self.args.cuda))
-                x_recon, mu, logvar = self.net(x)
-                recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
-                total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
+        if self.args.objective == 'H':
+            loss = recon_loss + self.args.beta*total_kld
+        elif self.args.objective == 'B':
+            C = torch.clamp(self.args.C_max/self.args.C_stop_iter*self.global_iter, 0, self.args.C_max.data[0])
+            loss = recon_loss + self.args.gamma*(total_kld-C).abs()
 
-                if self.args.objective == 'H':
-                    beta_vae_loss = recon_loss + self.args.beta*total_kld
-                elif self.args.objective == 'B':
-                    C = torch.clamp(self.args.C_max/self.args.C_stop_iter*self.global_iter, 0, self.args.C_max.data[0])
-                    beta_vae_loss = recon_loss + self.args.gamma*(total_kld-C).abs()
+        if self.args.vis_on and self.global_iter%self.args.gather_step == 0:
+            self.gather.insert(iter=self.global_iter,
+                               mu=mu.mean(0).data, var=logvar.exp().mean(0).data,
+                               recon_loss=recon_loss.data, total_kld=total_kld.data,
+                               dim_wise_kld=dim_wise_kld.data, mean_kld=mean_kld.data)
 
-                self.optim.zero_grad()
-                beta_vae_loss.backward()
-                self.optim.step()
+        if self.global_iter%self.args.display_step == 0:
+            self.pbar.write('[{}] recon_loss:{:.3f} total_kld:{:.3f} mean_kld:{:.3f}'.format(
+                self.global_iter, recon_loss.data[0], total_kld.data[0], mean_kld.data[0]))
 
-                if self.args.vis_on and self.global_iter%self.args.gather_step == 0:
-                    self.gather.insert(iter=self.global_iter,
-                                       mu=mu.mean(0).data, var=logvar.exp().mean(0).data,
-                                       recon_loss=recon_loss.data, total_kld=total_kld.data,
-                                       dim_wise_kld=dim_wise_kld.data, mean_kld=mean_kld.data)
+            var = logvar.exp().mean(0).data
+            var_str = ''
+            for j, var_j in enumerate(var):
+                var_str += 'var{}:{:.4f} '.format(j+1, var_j)
+            self.pbar.write(var_str)
 
-                if self.global_iter%self.args.display_step == 0:
-                    pbar.write('[{}] recon_loss:{:.3f} total_kld:{:.3f} mean_kld:{:.3f}'.format(
-                        self.global_iter, recon_loss.data[0], total_kld.data[0], mean_kld.data[0]))
+            if self.args.objective == 'B':
+                self.pbar.write('C:{:.3f}'.format(C.data[0]))
 
-                    var = logvar.exp().mean(0).data
-                    var_str = ''
-                    for j, var_j in enumerate(var):
-                        var_str += 'var{}:{:.4f} '.format(j+1, var_j)
-                    pbar.write(var_str)
+            if self.args.vis_on:
+                self.gather.insert(images=x.data)
+                self.gather.insert(images=F.sigmoid(x_recon).data)
+                self.vis_reconstruction()
+                self.vis_lines()
+                self.gather.flush()
 
-                    if self.args.objective == 'B':
-                        pbar.write('C:{:.3f}'.format(C.data[0]))
+            if self.args.vis_on or self.args.save_output:
+                self.vis_traverse()
 
-                    if self.args.vis_on:
-                        self.gather.insert(images=x.data)
-                        self.gather.insert(images=F.sigmoid(x_recon).data)
-                        self.vis_reconstruction()
-                        self.vis_lines()
-                        self.gather.flush()
+        return loss
 
-                    if self.args.vis_on or self.args.save_output:
-                        self.vis_traverse()
-
-                if self.global_iter%self.args.save_step == 0:
-                    self.save_checkpoint(str(self.global_iter))
-                    self.save_checkpoint('last')
-                    pbar.write('Saved checkpoint(iter:{})'.format(self.global_iter))
-
-        pbar.write("[Training Finished]")
-        pbar.close()
 
     def vis_lines(self):
         self.net_mode(train=False)
@@ -313,6 +323,9 @@ def ori_beta_VAE(super_beta_VAE):
 
 def beta_VAE(super_beta_VAE):
     def __init__(self):
+        pass
+
+    def load_DAE_checkpoint(self):
         pass
 
 def DAE(Solver):
