@@ -179,7 +179,7 @@ class super_beta_VAE(Solver):
         pass
     def training_process(self, x):
         x_recon, mu, logvar = self.net(x)
-        recon_loss = self.recon_loss_function(x, x_recon)
+        x_recon, recon_loss = self.recon_loss_function(x, x_recon)
         total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
 
         if self.args.objective == 'H':
@@ -334,7 +334,7 @@ class ori_beta_VAE(super_beta_VAE):
         super(ori_beta_VAE, self).__init__(args)
 
     def recon_loss_function(self, x, x_recon):
-        return reconstruction_loss(x, x_recon, self.decoder_dist)
+        return x_recon, reconstruction_loss(x, x_recon, self.decoder_dist)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class beta_VAE(super_beta_VAE):
@@ -346,7 +346,7 @@ class beta_VAE(super_beta_VAE):
         self.DAE_net = DAE_solver.net
 
     def recon_loss_function(self, x, x_recon):
-        return reconstruction_loss(self.DAE_net._encode(x), self.DAE_net._encode(x_recon), self.decoder_dist)
+        return self.DAE_net(x_recon), reconstruction_loss(self.DAE_net._encode(x), self.DAE_net._encode(x_recon), self.decoder_dist)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):
