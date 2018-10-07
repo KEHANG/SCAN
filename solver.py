@@ -185,7 +185,7 @@ class super_beta_VAE(Solver):
         klds = torch.cat([dim_wise_klds, mean_klds, total_klds], 1).cpu()
         iters = torch.Tensor(self.gather.data['iter'])
 
-        def update_win(Y, win, legend=None, title=''):
+        def update_win(Y, win, legend, title):
             opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,)
             if win is None:
                 return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
@@ -198,10 +198,10 @@ class super_beta_VAE(Solver):
         legend.append('mean')
         legend.append('total')
 
-        self.win_recon = update_win(recon_losses, self.win_recon, title='reconstruction loss')
-        self.win_kld = update_win(klds, self.win_kld, legend, title='kl divergence')
-        self.win_mu = update_win(mus, self.win_mu, legend[:self.args.z_dim], title='posterior mean')
-        self.win_var = update_win(variances, self.win_var, legend[:self.args.z_dim], title='posterior variance')
+        self.win_recon = update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
+        self.win_kld = update_win(klds, self.win_kld, legend, 'kl divergence')
+        self.win_mu = update_win(mus, self.win_mu, legend[:self.args.z_dim], 'posterior mean')
+        self.win_var = update_win(variances, self.win_var, legend[:self.args.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
 
