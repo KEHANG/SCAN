@@ -189,7 +189,7 @@ class super_beta_VAE(Solver):
             if legend is None:
                 opts = dict( width=400, height=400, xlabel='iteration', title=title,)
             else:
-                opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
+                opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,)
             if win is None:
                 return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
             else:
