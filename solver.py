@@ -432,7 +432,9 @@ def random_occluding(images, size, ratio=0.3, cuda_or_not=True):
         left = random.randint(0, x - x_span)
         down = random.randint(0, y - y_span)
         mask = torch.zeros([nc, x, y], dtype=torch.uint8)
+        print(mask.sum())
         mask[:, left : left+x_span, down : down+y_span] = 1
+        print(mask.sum())
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
