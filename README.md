@@ -13,15 +13,25 @@ visdom
 [same with here]
 
 ### Usage
-initialize visdom
-```
-vidsom -port 6059
-```
+To initialize visdom:
+
+    ```
+    vidsom -port 6059
+    ```
+
+To reproduce the results of SCAN, sequentially run the three commands:
+
+    ```
+    sh scripts/DAE.sh
+    sh scripts/beta_VAE.sh
+    sh scripts/SCAN.sh
+    ```
 
 The original beta-VAE models are still supported, and examples of commands reproducing the results can be found in `scripts/original-beta_VAE/` <br>
 To view them, you can also refer to the parent repo [Github Repo][]
 
 Acknowledgement:
+    I've referred to [this issue](https://github.com/miyosuda/scan/issues/1) to improve the visuality of beta-VAE when pretrained with DAE.
 
 ### Reference
 1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
