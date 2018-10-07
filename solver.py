@@ -185,7 +185,7 @@ class super_beta_VAE(Solver):
         klds = torch.cat([dim_wise_klds, mean_klds, total_klds], 1).cpu()
         iters = torch.Tensor(self.gather.data['iter'])
 
-        def update_win(Y, win, legend=None, title=''):
+        def update_win(Y, win, legend=[], title=''):
             if win is None:
                 return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines',
                                      opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
