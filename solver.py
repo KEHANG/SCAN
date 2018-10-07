@@ -133,11 +133,12 @@ class Solver(ABC):
                   'net_states': self.net.state_dict(),
                   'optim_states': self.optim.state_dict(),}
 
-        file_path = os.path.join(self.args.ckpt_dir, filename)
+        file_path = os.path.join(self.ckpt_dir, filename)
         with open(file_path, mode='wb+') as f:
             torch.save(states, f)
         if not silent:
             print("=> saved checkpoint '{}' (iter {})".format(file_path, self.global_iter))
+
     def load_checkpoint(self, filename):
         file_path = os.path.join(self.ckpt_dir, filename)
         if os.path.isfile(file_path):

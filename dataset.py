@@ -25,6 +25,15 @@ class CustomImageFolder(ImageFolder):
 
         return img
 
+class CustomMixDataset(Dataset):
+    def __init__(self, data_tensor):
+        self.data_tensor = data_tensor
+
+    def __getitem__(self, index):
+        return self.data_tensor[index]
+
+    def __len__(self):
+        return self.data_tensor.size(0)
 
 class CustomTensorDataset(Dataset):
     def __init__(self, data_tensor):
