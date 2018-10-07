@@ -37,7 +37,7 @@ class CustomTensorDataset(Dataset):
         return self.data_tensor.size(0)
 
 
-def return_data(args, occlusion=False):
+def return_data(args):
     name = args.dataset
     dset_dir = args.dset_dir
     batch_size = args.batch_size
