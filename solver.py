@@ -186,7 +186,7 @@ class super_beta_VAE(Solver):
         iters = torch.Tensor(self.gather.data['iter'])
 
         def update_win(Y, win, legend=None, title=''):
-            return self.vis.line(X=iters, Y=Y, env=self.args.vis_name+'_lines', win=win, update='append',
+            return self.vis.line(X=iters, Y=Y, env=self.args.vis_name+'_lines', win=win, update='replace',
                                  opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
 
         legend = []
