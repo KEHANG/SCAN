@@ -212,7 +212,7 @@ class super_beta_VAE(Solver):
             legend.append('z_{}'.format(z_j))
 
         self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
-        self.win_kld = self.update_win(klds, self.win_kld, legend, 'kl divergence')
+        self.win_kld = self.update_win(klds, self.win_kld, [''], 'kl divergence')
         self.win_mu = self.update_win(mus, self.win_mu, legend[:self.z_dim], 'posterior mean')
         self.win_var = self.update_win(variances, self.win_var, legend[:self.z_dim], 'posterior variance')
 
@@ -373,13 +373,18 @@ class DAE(Solver):
 #---------------------------------NEW CLASS-------------------------------------#
 class SCAN(Solver):
     def __init__(self, args):
-        self.model = SCAN
+        self.model = SCAN_net
         self.z_dim = args.SCAN_z_dim
         self.env_name = args.SCAN_env_name
         self.win_recon = None
         self.win_kld = None
+        self.win_relv = None
+        self.win_mu = None
+        self.win_var = None
 
         super(SCAN, self).__init__(args)
+
+    def training_process(self, x):
 
 
 def reconstruction_loss(X, Y, distribution):
