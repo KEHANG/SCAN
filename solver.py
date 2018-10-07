@@ -346,7 +346,7 @@ class beta_VAE(super_beta_VAE):
         self.DAE_net = DAE_solver.net
 
     def recon_loss_function(self, x, x_recon):
-        return reconstruction_loss(self.DAE_net(x), self.DAE_net(x_recon), self.decoder_dist)
+        return reconstruction_loss(self.DAE_net._encode(x), self.DAE_net._encode(x_recon), self.decoder_dist)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):
