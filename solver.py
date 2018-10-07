@@ -187,10 +187,7 @@ class super_beta_VAE(Solver):
 
         def update_win(Y, win, legend, title):
             opts = dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,)
-            if win is None:
-                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', opts=opts)
-            else:
-                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='append', opts=opts)
+            return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='append', opts=opts)
 
         legend = []
         for z_j in range(self.args.z_dim):
