@@ -179,7 +179,7 @@ class super_beta_VAE(Solver):
         pass
     def training_process(self, x):
         x_recon, mu, logvar = self.net(x)
-        x_recon, recon_loss = self.recon_loss_function(x, x_recon)
+        recon_loss = self.recon_loss_function(x, x_recon)
         total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
 
         if self.args.objective == 'H':
@@ -207,7 +207,7 @@ class super_beta_VAE(Solver):
             if self.args.objective == 'B':
                 self.pbar.write('C:{:.3f}'.format(C.data[0]))
 
-            self.vis_display([x, x_recon])
+            self.vis_display([x, self.visual(x_recon)])
 
         return loss
 
@@ -289,7 +289,7 @@ class super_beta_VAE(Solver):
                 z = z_ori.clone()
                 for val in interpolation:
                     z[:, row] = val
-                    sample = decoder(z).data
+                    sample = self.visual(decoder(z)).data
                     samples.append(sample)
                     gifs.append(sample)
             samples = torch.cat(samples, dim=0).cpu()
@@ -333,7 +333,10 @@ class ori_beta_VAE(super_beta_VAE):
         super(ori_beta_VAE, self).__init__(args)
 
     def recon_loss_function(self, x, x_recon):
-        return x_recon, reconstruction_loss(x, x_recon, self.decoder_dist)
+        return reconstruction_loss(x, x_recon, self.decoder_dist)
+
+    def visual(self, x):
+        return x
 
 #---------------------------------NEW CLASS-------------------------------------#
 class beta_VAE(super_beta_VAE):
@@ -345,7 +348,10 @@ class beta_VAE(super_beta_VAE):
         self.DAE_net = DAE_solver.net
 
     def recon_loss_function(self, x, x_recon):
-        return self.DAE_net(x_recon), reconstruction_loss(self.DAE_net._encode(x), self.DAE_net._encode(x_recon), self.decoder_dist)
+        return reconstruction_loss(self.DAE_net._encode(x), self.DAE_net._encode(x_recon), self.decoder_dist)
+
+    def visual(self, x):
+        return self.DAE_net(x)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):
