@@ -27,13 +27,13 @@ class CustomImageFolder(ImageFolder):
 
 class CustomMixDataset(Dataset):
     def __init__(self, root, transform=None):
-        self.data_tensor = data_tensor
+        self.image_folder = CustomImageFolder(root, transform)
 
     def __getitem__(self, index):
         return self.data_tensor[index]
 
     def __len__(self):
-        return self.data_tensor.size(0)
+        return self.image_folder.__len__()
 
 class CustomTensorDataset(Dataset):
     def __init__(self, data_tensor):
