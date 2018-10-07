@@ -11,7 +11,6 @@ import random
 
 import torch
 import torch.optim as optim
-import torch.nn.functional as F
 from torch.autograd import Variable
 from torchvision.utils import make_grid, save_image
 
@@ -91,16 +90,6 @@ class Solver(ABC):
         self.pbar.write("[Training Finished]")
         self.pbar.close()
 
-    def vis_reconstruction(self):
-        self.net_mode(train=False)
-        x = self.gather.data['images'][0][:100]
-        x = make_grid(x, normalize=True)
-        x_recon = self.gather.data['images'][1][:100]
-        x_recon = make_grid(x_recon, normalize=True)
-        images = torch.stack([x, x_recon], dim=0).cpu()
-        self.vis.images(images, env=self.env_name+'_reconstruction',
-                        opts=dict(title=str(self.global_iter)), nrow=10)
-        self.net_mode(train=True)
     def vis_display(self, image_set, traverse=True):
         if self.args.vis_on:
             for image in image_set:
@@ -111,6 +100,16 @@ class Solver(ABC):
 
         if (self.args.vis_on or self.args.save_output) and traverse:
             self.vis_traverse()
+    def vis_reconstruction(self):
+        self.net_mode(train=False)
+        x = self.gather.data['images'][0][:100]
+        x = make_grid(x, normalize=True)
+        x_recon = self.gather.data['images'][1][:100]
+        x_recon = make_grid(x_recon, normalize=True)
+        images = torch.stack([x, x_recon], dim=0).cpu()
+        self.vis.images(images, env=self.env_name+'_reconstruction',
+                        opts=dict(title=str(self.global_iter)), nrow=10)
+        self.net_mode(train=True)
 
     def update_win(self, Y, win, legend, title):
         iters = torch.Tensor(self.gather.data['iter'])
@@ -200,12 +199,12 @@ class super_beta_VAE(Solver):
 
     def vis_lines(self):
         self.net_mode(train=False)
-        recon_losses = torch.stack(self.gather.data['recon_loss']).cpu()
-
-        mus = torch.stack(self.gather.data['mu']).cpu()
-        variances = torch.stack(self.gather.data['var']).cpu()
-
-        klds = torch.stack(self.gather.data['kld']).cpu()
+        def gather(name):
+            return torch.stack(self.gather.data[name]).cpu()
+        recon_losses = gather('recon_loss')
+        mus = gather('mu')
+        variances = gather('var')
+        klds = gather('kld')
 
         legend = []
         for z_j in range(self.z_dim):
@@ -219,7 +218,6 @@ class super_beta_VAE(Solver):
         self.net_mode(train=True)
     def vis_traverse(self, limit=3, inter=2/3, loc=-1):
         self.net_mode(train=False)
-        import random
 
         decoder = self.net.decoder
         encoder = self.net.encoder
@@ -398,7 +396,102 @@ class SCAN(Solver):
         mu_x = z_x[:self.args.beta_VAE_z_dim]
         logvar_x = z_x[self.args.beta_VAE_z_dim:]
 
+        recon_loss = reconstruction_loss(y, y_recon, 'bernoulli')
+        kld = kl_divergence(mu_y, logvar_y)
+        relv = dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y)
+        loss = recon_loss + self.args.beta * kld + self.args.gamma * relv
 
+        if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
+            self.gather.insert(iter=self.global_iter,
+                               mu=mu_y.mean(0).data, var=logvar_y.exp().mean(0).data,
+                               recon_loss=recon_loss.data, kld=kld.data, relv=relv.data)
+
+        if self.global_iter % self.args.display_save_step == 0:
+            self.vis_display([x, self.visual(y)])
+        return loss
+
+    def visual(self, y):
+        return self.beta_VAE_net.DAE_net(self.beta_VAE_net._decode(self.net._encode(y)))
+
+    def vis_lines(self):
+        self.net_mode(train=False)
+        def gather(name):
+            return torch.stack(self.gather.data[name]).cpu()
+        recon_losses = gather('recon_loss')
+        klds = gather('kld')
+        relvs = gather('relv')
+        mus = gather('mu')
+        variances = gather('var')
+
+        legend = []
+        for z_j in range(self.z_dim):
+            legend.append('z_{}'.format(z_j))
+
+        self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
+        self.win_kld = self.update_win(klds, self.win_kld, [''], 'kl divergence')
+        self.win_relv = self.update_win(relvs, self.win_relv, [''], 'relevance')
+        self.win_mu = self.update_win(mus, self.win_mu, legend[:self.z_dim], 'posterior mean')
+        self.win_var = self.update_win(variances, self.win_var, legend[:self.z_dim], 'posterior variance')
+
+        self.net_mode(train=True)
+    def vis_traverse(self, limit=3, inter=2/3, loc=-1):
+        self.net_mode(train=False)
+
+        decoder = self.net.decoder
+        encoder = self.net.encoder
+        interpolation = torch.arange(-limit, limit+0.1, inter)
+
+        n_dsets = len(self.data_loader.dataset)
+
+        rand_idx = random.randint(1, n_dsets-1)
+        random_img = self.data_loader.dataset.__getitem__(rand_idx)
+        random_img = Variable(cuda(random_img, self.args.cuda), volatile=True).unsqueeze(0)
+        random_img_z = encoder(random_img)[:, :self.z_dim]
+
+        random_z = Variable(cuda(torch.rand(1, self.z_dim), self.args.cuda), volatile=True)
+
+        fixed_idx = 0
+        fixed_img = self.data_loader.dataset.__getitem__(fixed_idx)
+        fixed_img = Variable(cuda(fixed_img, self.args.cuda), volatile=True).unsqueeze(0)
+        fixed_img_z = encoder(fixed_img)[:, :self.z_dim]
+
+        Z = {'fixed_img':fixed_img_z, 'random_img':random_img_z, 'random_z':random_z}
+
+        gifs = []
+        for key in Z.keys():
+            z_ori = Z[key]
+            samples = []
+            for row in range(self.z_dim):
+                if loc != -1 and row != loc:
+                    continue
+                z = z_ori.clone()
+                for val in interpolation:
+                    z[:, row] = val
+                    sample = self.visual(decoder(z)).data
+                    samples.append(sample)
+                    gifs.append(sample)
+            samples = torch.cat(samples, dim=0).cpu()
+            title = '{}_latent_traversal(iter:{})'.format(key, self.global_iter)
+
+            if self.args.vis_on:
+                self.vis.images(samples, env=self.env_name+'_traverse',
+                                opts=dict(title=title), nrow=len(interpolation))
+
+        if self.args.save_output:
+            output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+            os.makedirs(output_dir, exist_ok=True)
+            gifs = torch.cat(gifs)
+            gifs = gifs.view(len(Z), self.z_dim, len(interpolation), self.nc, 64, 64).transpose(1, 2)
+            for i, key in enumerate(Z.keys()):
+                for j, val in enumerate(interpolation):
+                    save_image(tensor=gifs[i][j].cpu(),
+                               filename=os.path.join(output_dir, '{}_{}.jpg'.format(key, j)),
+                               nrow=self.z_dim, pad_value=1)
+
+                grid2gif(os.path.join(output_dir, key+'*.jpg'),
+                         os.path.join(output_dir, key+'.gif'), delay=10)
+
+        self.net_mode(train=True)
 
 
 def reconstruction_loss(X, Y, distribution):
@@ -406,9 +499,8 @@ def reconstruction_loss(X, Y, distribution):
     assert batch_size != 0
 
     if distribution == 'bernoulli':
-        recon_loss = F.binary_cross_entropy_with_logits(Y, X, reduction='sum').div(batch_size)
+        recon_loss = -(X * torch.log(Y)) / batch_size
     elif distribution == 'gaussian':
-        #recon_loss = F.mse_loss(Y, X, reduction='sum').div(batch_size)
         recon_loss = ((X - Y) ** 2).sum() / batch_size
     else:
         recon_loss = None
