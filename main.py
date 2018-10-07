@@ -18,7 +18,7 @@ parser.add_argument('--SCAN', action='store_true', help='whether to train a SCAN
 parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training, which has 3 stages: {DAE, beta-VAE, SCAN}')
 
 parser.add_argument('--image_size', default=64, type=int, help='image size. now only (64,64) is supported')
-parser.add_argument('--num_workers', default=4, type=int, help='dataloader num_workers')
+parser.add_argument('--num_workers', default=8, type=int, help='dataloader num_workers')
 parser.add_argument('--train', default=True, type=str2bool, help='train or traverse')
 parser.add_argument('--seed', default=1, type=int, help='random seed')
 parser.add_argument('--cuda', default=True, type=str2bool, help='enable cuda')
