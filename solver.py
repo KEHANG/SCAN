@@ -442,16 +442,20 @@ class DataGather(object):
     def flush(self):
         self.data = self.get_empty_data_dict()
 
-def random_occluding(images, size, cuda_or_not=True, ratio=0.3):
+def random_occluding(images, size, cuda_or_not=True):
     occluded = images.clone()
     (batch_size, nc, x, y) = size
     def random_mask():
-        x_span = int(x * ratio)
-        y_span = int(y * ratio)
-        left = random.randint(0, x - x_span)
-        down = random.randint(0, y - y_span)
+        left = random.randint(0, x)
+        right = random.randint(0, x)
+        down = random.randint(0, y)
+        up = random.randint(0, y)
+        if left > right:
+            left, right = right, left
+        if down > up:
+            down, up = up, down
         mask = torch.zeros([nc, x, y], dtype=torch.uint8)
-        mask[:, left : left+x_span, down : down+y_span] = 1
+        mask[:, left : right, down : up] = 1
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
