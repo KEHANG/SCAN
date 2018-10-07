@@ -146,6 +146,9 @@ class Solver(ABC):
             print("=> loaded checkpoint '{} (iter {})'".format(file_path, self.global_iter))
         else:
             print("=> no checkpoint found at '{}'".format(file_path))
+            for key in self.get_win_states().keys():
+                env_name = self.args.env_name + '_' + key
+                self.vis.delete_env(env_name)
 
 
 #---------------------------------NEW CLASS-------------------------------------#
