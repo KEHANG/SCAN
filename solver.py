@@ -334,18 +334,15 @@ class ori_beta_VAE(super_beta_VAE):
 class beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(beta_VAE, self).__init__(args)
-        self.DAE_encoder = self.load_DAE_encoder()
 
-    def load_DAE_encoder(self):
         args = self.args
         args.ckpt_dir = args.ref_ckpt_dir
         DAE_solver = DAE(args)
         DAE_solver.net_mode(train=False)
-        encoder = DAE_solver.net._encoder()
-        return encoder
+        self.DAE_net = DAE_solver.net
 
     def recon_loss_funtion(self, x, x_recon):
-        return reconstruction_loss(self.DAE_encoder(x), self.DAE_encoder(x_recon))
+        return reconstruction_loss(self.DAE_net(x), self.DAE_net(x_recon))
 
 #---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):
@@ -388,14 +385,14 @@ class SCAN(Solver):
         self.set_net_and_optim(SCAN_net)
 
 
-def reconstruction_loss(x, x_recon, distribution):
-    batch_size = x.size(0)
+def reconstruction_loss(X, Y, distribution):
+    batch_size = X.size(0)
     assert batch_size != 0
 
     if distribution == 'bernoulli':
-        recon_loss = F.binary_cross_entropy_with_logits(x_recon, x, size_average=False).div(batch_size)
+        recon_loss = F.binary_cross_entropy_with_logits(Y, X, size_average=False).div(batch_size)
     elif distribution == 'gaussian':
-        recon_loss = F.mse_loss(x_recon, x, size_average=False).div(batch_size)
+        recon_loss = F.mse_loss(Y, X, size_average=False).div(batch_size)
     else:
         recon_loss = None
     return recon_loss
