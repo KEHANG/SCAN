@@ -170,9 +170,11 @@ class super_beta_VAE(Solver):
 
     def prepare_training(self):
         self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
+    def recon_loss_funtion(self, x, x_recon):
+        pass
     def training_process(self, x):
         x_recon, mu, logvar = self.net(x)
-        recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
+        recon_loss = self.recon_loss_function(x, x_recon)
         total_kld, dim_wise_kld, mean_kld = kl_divergence(mu, logvar)
 
         if self.args.objective == 'H':
@@ -325,14 +327,25 @@ class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(ori_beta_VAE, self).__init__(args)
 
+    def recon_loss_funtion(self, x, x_recon):
+        return reconstruction_loss(x, x_recon, self.decoder_dist)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class beta_VAE(super_beta_VAE):
     def __init__(self, args):
-        pass
+        super(beta_VAE, self).__init__(args)
+        self.DAE_encoder = self.load_DAE_encoder()
 
-    def load_DAE_checkpoint(self):
-        pass
+    def load_DAE_encoder(self):
+        args = self.args
+        args.ckpt_dir = args.ref_ckpt_dir
+        DAE_solver = DAE(args)
+        DAE_solver.net_mode(train=False)
+        encoder = DAE_solver.net._encoder()
+        return encoder
+
+    def recon_loss_funtion(self, x, x_recon):
+        return reconstruction_loss(self.DAE_encoder(x), self.DAE_encoder(x_recon))
 
 #---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):

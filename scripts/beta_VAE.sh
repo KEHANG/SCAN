@@ -1,5 +1,4 @@
 #! /bin/sh
 
-python main.py --SCAN --phase DAE --dataset celeba --seed 1 --lr 1e-3 \
-    --objective H --model H --batch_size 64 --z_dim 10 --max_iter 1.5e6 \
-    --beta 10 --env_name trial --display_save_step 10000
+python main.py --SCAN --phase beta_VAE --env_name beta_VAE --dataset celeba\
+    --seed 7 --lr 1e-4 --batch_size 100 --max_iter 1e6 --beta 53 --z_dim 32

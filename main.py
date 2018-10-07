@@ -15,7 +15,7 @@ torch.backends.cudnn.benchmark = True
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--SCAN', action='store_true', help='whether to train a SCAN model or the original beta-VAE model')
-parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training, which has 3 stages: {DAE, beta-VAE, SCAN}')
+parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training, which has 3 stages: {DAE, beta_VAE, SCAN}')
 
 parser.add_argument('--image_size', default=64, type=int, help='image size. now only (64,64) is supported')
 parser.add_argument('--num_workers', default=16, type=int, help='dataloader num_workers')
@@ -25,7 +25,7 @@ parser.add_argument('--cuda', default=True, type=str2bool, help='enable cuda')
 parser.add_argument('--max_iter', default=1e6, type=float, help='maximum training iteration')
 parser.add_argument('--batch_size', default=64, type=int, help='batch size')
 
-parser.add_argument('--z_dim', default=10, type=int, help='dimension of the representation')
+parser.add_argument('--z_dim', default=32, type=int, help='dimension of the representation')
 parser.add_argument('--beta', default=4, type=float, help='beta parameter for KL-term in original beta-VAE')
 parser.add_argument('--objective', default='H', type=str, help='beta-vae objective proposed in Higgins et al. or Burgess et al. H/B')
 parser.add_argument('--model', default='H', type=str, help='model proposed in Higgins et al. or Burgess et al. H/B')
@@ -57,6 +57,7 @@ args = parser.parse_args()
 args.dset_dir = os.path.join(args.root_dir, args.dset_dir)
 args.output_dir = os.path.join(args.root_dir, args.env_name, args.output_dir)
 args.ckpt_dir = os.path.join(args.root_dir, args.env_name, args.ckpt_dir)
+args.ref_ckpt_dir = os.path.join(args.root_dir, args.ref_env_name, args.ckpt_dir)
 
 args.cuda = args.cuda and torch.cuda.is_available()
 

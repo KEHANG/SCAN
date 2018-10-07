@@ -23,7 +23,7 @@ class View(nn.Module):
 class BetaVAE_H_net(nn.Module):
     """Model proposed in original beta-VAE paper(Higgins et al, ICLR, 2017)."""
 
-    def __init__(self, z_dim=10, nc=3):
+    def __init__(self, z_dim=32, nc=3):
         super(BetaVAE_H_net, self).__init__()
         self.z_dim = z_dim
         self.nc = nc
@@ -83,7 +83,7 @@ class BetaVAE_H_net(nn.Module):
 class BetaVAE_B_net(BetaVAE_H_net):
     """Model proposed in understanding beta-VAE paper(Burgess et al, arxiv:1804.03599, 2018)."""
 
-    def __init__(self, z_dim=10, nc=1):
+    def __init__(self, z_dim=32, nc=1):
         super(BetaVAE_B_net, self).__init__()
         self.nc = nc
         self.z_dim = z_dim
@@ -146,8 +146,7 @@ class BetaVAE_B_net(BetaVAE_H_net):
 
 
 class DAE_net(nn.Module):
-
-    def __init__(self, z_dim=10, nc=3):
+    def __init__(self, z_dim=100, nc=3):
         super(DAE_net, self).__init__()
         self.z_dim = z_dim
         self.nc = nc
