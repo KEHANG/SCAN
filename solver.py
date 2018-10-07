@@ -425,11 +425,11 @@ class DataGather(object):
 def random_occluding(images, size, ratio=0.4):
     (batch_size, x, y, nc) = size
     def random_mask():
-        x_span = x * ratio
-        y_span = y * ratio
-        left = random.randint(0, int(x - x_span))
-        down = random.randint(0, int(y - y_span))
-        mask = numpy.zeros(size + [nc], dtype=float)
+        x_span = int(x * ratio)
+        y_span = int(y * ratio)
+        left = random.randint(0, x - x_span)
+        down = random.randint(0, y - y_span)
+        mask = torch.zeros(size + [nc], dtype=float)
         mask[left : left+x_span, down : down+y_span, :] = 1
         return mask
 
