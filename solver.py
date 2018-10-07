@@ -190,7 +190,7 @@ class super_beta_VAE(Solver):
                 return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines',
                                      opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
             else:
-                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='append',
+                return self.vis.line(X=iters, Y=Y, env=self.args.env_name+'_lines', win=win, update='remove',
                                      opts=dict( width=400, height=400, legend=legend, xlabel='iteration', title=title,))
 
         legend = []
