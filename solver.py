@@ -327,7 +327,6 @@ class super_beta_VAE(Solver):
         self.win_mu = win_states['mu']
 
 
-
 #---------------------------------NEW CLASS-------------------------------------#
 class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
