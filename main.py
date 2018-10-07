@@ -25,7 +25,9 @@ parser.add_argument('--cuda', default=True, type=str2bool, help='enable cuda')
 parser.add_argument('--max_iter', default=1e6, type=float, help='maximum training iteration')
 parser.add_argument('--batch_size', default=64, type=int, help='batch size')
 
-parser.add_argument('--z_dim', default=32, type=int, help='dimension of the representation')
+parser.add_argument('--DAE_z_dim', default=100, type=int, help='dimension of the representation')
+parser.add_argument('--beta_VAE_z_dim', default=32, type=int, help='dimension of the representation')
+parser.add_argument('--SCAN_z_dim', default=32, type=int, help='dimension of the representation')
 parser.add_argument('--beta', default=4, type=float, help='beta parameter for KL-term in original beta-VAE')
 parser.add_argument('--objective', default='H', type=str, help='beta-vae objective proposed in Higgins et al. or Burgess et al. H/B')
 parser.add_argument('--model', default='H', type=str, help='model proposed in Higgins et al. or Burgess et al. H/B')
@@ -43,8 +45,9 @@ parser.add_argument('--gather_step', default=1000, type=int, help='numer of iter
 parser.add_argument('--display_save_step', default=10000, type=int, help='number of iterations after which to display data and save checkpoint')
 
 parser.add_argument('--root_dir', default='/data/hc/SCAN', type=str, help='root directory')
-parser.add_argument('--env_name', default='trial', type=str, help='visdom env name')
-parser.add_argument('--ref_env_name', default='', type=str, help='directory of the reference model')
+parser.add_argument('--DAE_env_name', default='DAE', type=str, help='visdom env name')
+parser.add_argument('--beta_VAE_env_name', default='beta_VAE', type=str, help='visdom env name')
+parser.add_argument('--SCAN_env_name', default='SCAN', type=str, help='visdom env name')
 parser.add_argument('--dset_dir', default='dataset', type=str, help='dataset directory')
 parser.add_argument('--dataset', default='CelebA', type=str, help='dataset name')
 parser.add_argument('--save_output', default=True, type=str2bool, help='save traverse images and gif')
@@ -55,9 +58,6 @@ parser.add_argument('--ckpt_name', default='last', type=str, help='name of the p
 args = parser.parse_args()
 
 args.dset_dir = os.path.join(args.root_dir, args.dset_dir)
-args.output_dir = os.path.join(args.root_dir, args.env_name, args.output_dir)
-args.ckpt_dir = os.path.join(args.root_dir, args.env_name, args.ckpt_dir)
-args.ref_ckpt_dir = os.path.join(args.root_dir, args.ref_env_name, args.ckpt_dir)
 
 args.cuda = args.cuda and torch.cuda.is_available()
 

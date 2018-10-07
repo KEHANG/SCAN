@@ -21,7 +21,7 @@ from dataset import return_data
 
 #---------------------------------NEW CLASS-------------------------------------#
 class Solver(ABC):
-    def __init__(self, args, model):
+    def __init__(self, args):
         self.global_iter = 0
         self.args = args
 
@@ -37,14 +37,17 @@ class Solver(ABC):
         else:
             raise NotImplementedError
 
-        if not os.path.exists(self.args.ckpt_dir):
-            os.makedirs(self.args.ckpt_dir, exist_ok=True)
-        if not os.path.exists(self.args.output_dir):
-            os.makedirs(self.args.output_dir, exist_ok=True)
+        self.output_dir = os.path.join(args.root_dir, self.env_name, args.output_dir)
+        self.ckpt_dir = os.path.join(args.root_dir, self.env_name, args.ckpt_dir)
+
+        if not os.path.exists(self.ckpt_dir):
+            os.makedirs(self.ckpt_dir, exist_ok=True)
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir, exist_ok=True)
         if self.args.vis_on:
             self.vis = visdom.Visdom(port=self.args.vis_port)
         self.gather = DataGather()
-        self.net = cuda(model(self.args.z_dim, self.nc), self.args.cuda)
+        self.net = cuda(self.model(self.z_dim, self.nc), self.args.cuda)
         self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
                                betas=(self.args.beta1, self.args.beta2), eps=self.args.epsilon)
         self.load_checkpoint(self.args.ckpt_name)
@@ -136,7 +139,7 @@ class Solver(ABC):
         if not silent:
             print("=> saved checkpoint '{}' (iter {})".format(file_path, self.global_iter))
     def load_checkpoint(self, filename):
-        file_path = os.path.join(self.args.ckpt_dir, filename)
+        file_path = os.path.join(self.ckpt_dir, filename)
         if os.path.isfile(file_path):
             checkpoint = torch.load(file_path)
             self.global_iter = checkpoint['iter']
@@ -151,22 +154,23 @@ class Solver(ABC):
                 env_name = self.args.env_name + '_' + key
                 self.vis.delete_env(env_name)
 
-
 #---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
     def __init__(self, args):
         if args.model == 'H':
-            model = BetaVAE_H_net
+            self.model = BetaVAE_H_net
         elif args.model == 'B':
-            model = BetaVAE_B_net
+            self.model = BetaVAE_B_net
         else:
             raise NotImplementedError('only support model H or B')
+        self.z_dim = args.beta_VAE_z_dim
+        self.env_name = args.beta_VAE_env_name
         self.win_recon = None
         self.win_kld = None
         self.win_mu = None
         self.win_var = None
 
-        super(super_beta_VAE, self).__init__(args, model)
+        super(super_beta_VAE, self).__init__(args)
 
     def prepare_training(self):
         self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
@@ -322,6 +326,7 @@ class super_beta_VAE(Solver):
         self.win_mu = win_states['mu']
 
 
+
 #---------------------------------NEW CLASS-------------------------------------#
 class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
@@ -348,7 +353,11 @@ class beta_VAE(super_beta_VAE):
 class DAE(Solver):
     def __init__(self, args):
         self.win_recon = None
-        super(DAE, self).__init__(args, DAE_net)
+        self.model = DAE_net
+        self.z_dim = args.DAE_z_dim
+        self.env_name = args.DAE_env_name
+
+        super(DAE, self).__init__(args)
 
     def prepare_training(self):
         pass
