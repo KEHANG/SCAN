@@ -78,6 +78,7 @@ def main(args):
             model = SCAN
 
     model = model(args)
+    print(model)
 
     if args.train:
         model.train()
