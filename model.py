@@ -54,6 +54,7 @@ class BetaVAE_H_net(nn.Module):
             nn.ConvTranspose2d(32, 32, 4, 2, 1),    # 32, 32, 32
             nn.ReLU(True),
             nn.ConvTranspose2d(32, nc, 4, 2, 1),    # nc, 64, 64
+            nn.Sigmoid()
         )
 
         self.weight_init()
@@ -119,6 +120,7 @@ class BetaVAE_B_net(BetaVAE_H_net):
             nn.ConvTranspose2d(32, 32, 4, 2, 1),    # 32, 32, 32
             nn.ReLU(True),
             nn.ConvTranspose2d(32, nc, 4, 2, 1),    # nc, 64, 64
+            nn.Sigmoid()
         )
         self.weight_init()
 
@@ -173,6 +175,7 @@ class DAE_net(nn.Module):
             nn.ConvTranspose2d(32, 32, 4, 2, 1),    # 32, 32, 32
             nn.ReLU(True),
             nn.ConvTranspose2d(32, nc, 4, 2, 1),    # nc, 64, 64
+            nn.Sigmoid()
         )
 
         self.weight_init()

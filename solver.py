@@ -278,7 +278,7 @@ class super_beta_VAE(Solver):
                 z = z_ori.clone()
                 for val in interpolation:
                     z[:, row] = val
-                    sample = F.sigmoid(decoder(z)).data
+                    sample = decoder(z).data
                     samples.append(sample)
                     gifs.append(sample)
             samples = torch.cat(samples, dim=0).cpu()
@@ -378,7 +378,6 @@ def reconstruction_loss(x, x_recon, distribution):
     if distribution == 'bernoulli':
         recon_loss = F.binary_cross_entropy_with_logits(x_recon, x, size_average=False).div(batch_size)
     elif distribution == 'gaussian':
-        x_recon = F.sigmoid(x_recon)
         recon_loss = F.mse_loss(x_recon, x, size_average=False).div(batch_size)
     else:
         recon_loss = None
