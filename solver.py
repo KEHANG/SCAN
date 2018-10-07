@@ -424,7 +424,7 @@ class DataGather(object):
 
 def random_occluding(images, size, ratio=0.4):
     print(images.size())
-    (batch_size, x, y, nc) = size
+    (batch_size, nc, x, y) = size
     def random_mask():
         x_span = int(x * ratio)
         y_span = int(y * ratio)
