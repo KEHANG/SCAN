@@ -199,7 +199,7 @@ class super_beta_VAE(Solver):
         legend.append('mean')
         legend.append('total')
 
-        self.win_recon = update_win(recon_losses, self.win_recon, 'reconstruction loss')
+        self.win_recon = update_win(recon_losses, self.win_recon, title='reconstruction loss')
         self.win_kld = update_win(klds, self.win_kld, legend, 'kl divergence')
         self.win_mu = update_win(mus, self.win_mu, legend[self.args.z_dim], 'posterior mean')
         self.win_var = update_win(variances, self.win_var, legend[self.args.z_dim], 'posterior variance')
