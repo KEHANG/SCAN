@@ -25,7 +25,7 @@ parser.add_argument('--cuda', default=True, type=str2bool, help='enable cuda')
 parser.add_argument('--max_iter', default=1e6, type=float, help='maximum training iteration')
 parser.add_argument('--batch_size', default=64, type=int, help='batch size')
 
-parser.add_argument('--z_dim', default=10, type=int, help='dimension of the representation z')
+parser.add_argument('--z_dim', default=10, type=int, help='dimension of the representation')
 parser.add_argument('--beta', default=4, type=float, help='beta parameter for KL-term in original beta-VAE')
 parser.add_argument('--objective', default='H', type=str, help='beta-vae objective proposed in Higgins et al. or Burgess et al. H/B')
 parser.add_argument('--model', default='H', type=str, help='model proposed in Higgins et al. or Burgess et al. H/B')

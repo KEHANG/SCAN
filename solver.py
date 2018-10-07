@@ -18,9 +18,9 @@ from utils import cuda, grid2gif
 from model import BetaVAE_H_net, BetaVAE_B_net, DAE_net, SCAN_net
 from dataset import return_data
 
-
+#---------------------------------NEW CLASS-------------------------------------#
 class Solver(ABC):
-    def __init__(self, args):
+    def __init__(self, args, model):
         self.global_iter = 0
         self.args = args
 
@@ -35,18 +35,20 @@ class Solver(ABC):
             self.decoder_dist = 'gaussian'
         else:
             raise NotImplementedError
-    def set_net_and_optim(self, net):
-        self.net = cuda(net(self.args.z_dim, self.nc), self.args.cuda)
-        self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
-                               betas=(self.args.beta1, self.args.beta2), eps=self.args.epsilon)
-    def clean_workspace(self):
+
         if not os.path.exists(self.args.ckpt_dir):
             os.makedirs(self.args.ckpt_dir, exist_ok=True)
-        self.load_checkpoint(self.args.ckpt_name)
         if not os.path.exists(self.args.output_dir):
             os.makedirs(self.args.output_dir, exist_ok=True)
-
+        if self.args.vis_on:
+            self.vis = visdom.Visdom(port=self.args.vis_port)
         self.gather = DataGather()
+        self.net = cuda(model(self.args.z_dim, self.nc), self.args.cuda)
+        self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
+                               betas=(self.args.beta1, self.args.beta2), eps=self.args.epsilon)
+        self.load_checkpoint(self.args.ckpt_name)
+        self.data_loader = return_data(self.args)
+
 
     @abstractmethod
     def prepare_training(self):
@@ -146,30 +148,21 @@ class Solver(ABC):
             print("=> no checkpoint found at '{}'".format(file_path))
 
 
-
+#---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
     def __init__(self, args):
-        super(super_beta_VAE, self).__init__(args)
-
         if args.model == 'H':
-            net = BetaVAE_H_net
+            model = BetaVAE_H_net
         elif args.model == 'B':
-            net = BetaVAE_B_net
+            model = BetaVAE_B_net
         else:
             raise NotImplementedError('only support model H or B')
-
-        self.set_net_and_optim(net)
-
         self.win_recon = None
         self.win_kld = None
         self.win_mu = None
         self.win_var = None
 
-        if self.args.vis_on:
-            self.vis = visdom.Visdom(port=self.args.vis_port)
-        self.data_loader = return_data(self.args)
-
-        self.clean_workspace()
+        super(super_beta_VAE, self).__init__(args, model)
 
     def prepare_training(self):
         self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
@@ -323,11 +316,13 @@ class super_beta_VAE(Solver):
         self.win_mu = win_states['mu']
 
 
+#---------------------------------NEW CLASS-------------------------------------#
 class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(ori_beta_VAE, self).__init__(args)
 
 
+#---------------------------------NEW CLASS-------------------------------------#
 class beta_VAE(super_beta_VAE):
     def __init__(self, args):
         pass
@@ -335,22 +330,16 @@ class beta_VAE(super_beta_VAE):
     def load_DAE_checkpoint(self):
         pass
 
+#---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):
     def __init__(self, args):
-        super(Solver, self).__init__(args)
-
-        self.set_net_and_optim(DAE_net)
-
         self.win_recon = None
-        if self.args.vis_on:
-            self.vis = visdom.Visdom(port=self.args.vis_port)
-        self.data_loader = return_data(self.args, occlusion=True)
-
-        self.clean_workspace()
+        super(Solver, self).__init__(args, DAE_net)
 
     def prepare_training(self):
         pass
     def training_process(self, x):
+
         x_recon = self.net(x)
         recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
         loss = recon_loss
@@ -374,7 +363,7 @@ class DAE(Solver):
         self.win_recon = self.update_win(recon_losses, self.win_recon, ['reconstruction loss'], 'reconstruction loss')
         self.net_mode(train=True)
 
-
+#---------------------------------NEW CLASS-------------------------------------#
 class SCAN(Solver):
     def __init__(self, args):
         super(SCAN, self).__init__(args)
