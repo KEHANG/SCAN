@@ -420,6 +420,7 @@ class DataGather(object):
         self.data = self.get_empty_data_dict()
 
 def random_occluding(images, size, ratio=0.4, cuda_or_not=True):
+    occluded = images.clone()
     (batch_size, nc, x, y) = size
     def random_mask():
         x_span = int(x * ratio)
@@ -427,11 +428,11 @@ def random_occluding(images, size, ratio=0.4, cuda_or_not=True):
         left = random.randint(0, x - x_span)
         down = random.randint(0, y - y_span)
         mask = torch.zeros([nc, x, y], dtype=torch.uint8)
-        mask[:, left : left+x_span, down : down+y_span]= 1
+        mask[:, left : left+x_span, down : down+y_span] = 1
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
     masks = cuda(masks, cuda_or_not)
-    occluded = images.masked_fill_(masks, 0)
+    occluded.masked_fill_(masks, 0)
     return occluded
 
