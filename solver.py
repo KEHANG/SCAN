@@ -388,6 +388,9 @@ class DAE(Solver):
 #---------------------------------NEW CLASS-------------------------------------#
 class SCAN(Solver):
     def __init__(self, args):
+        self.model = SCAN
+        self.z_dim = args.SCAN_z_dim
+        self.env_name = args.SCAN_env_name
         super(SCAN, self).__init__(args)
 
         self.set_net_and_optim(SCAN_net)

@@ -28,12 +28,27 @@ class CustomImageFolder(ImageFolder):
 class CustomMixDataset(Dataset):
     def __init__(self, root, transform=None):
         self.image_folder = CustomImageFolder(root, transform)
+        self.attr_tensor = self.get_tensor(root)
 
     def __getitem__(self, index):
-        return self.data_tensor[index]
+        return [self.image_folder.__getitem__(index), self.data_tensor[index], self.keys]
 
     def __len__(self):
-        return self.image_folder.__len__()
+        return self.len
+
+    def get_tensor(self, root):
+        attr_file = open(os.path.join(root, 'CelebA/Anno/list_attr_celeba.txt'), 'r')
+        lines = attr_file.readlines()
+        self.len = int(lines.pop())
+        self.keys = list(map(lambda x: x.rstrip(' '), lines.pop().split(',')))
+        self.n_key = len(self.keys)
+        attr_tensor = None
+        for line in lines:
+            vector = list(map(lambda x: int(x), line.split(' ')[1:]))
+            vector = np.array(vector).resize([1, self.n_key])
+            attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
+
+        return attr_tensor
 
 class CustomTensorDataset(Dataset):
     def __init__(self, data_tensor):
@@ -46,7 +61,7 @@ class CustomTensorDataset(Dataset):
         return self.data_tensor.size(0)
 
 
-def return_data(args):
+def return_data(args, image_only=True):
     name = args.dataset
     dset_dir = args.dset_dir
     batch_size = args.batch_size
@@ -68,7 +83,7 @@ def return_data(args):
             transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),])
         train_kwargs = {'root':root, 'transform':transform}
-        dset = CustomImageFolder
+        dset = CustomImageFolder if image_only else CustomMixDataset
 
     elif name.lower() == 'dsprites':
         root = os.path.join(dset_dir, 'dsprites-dataset/dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz')
