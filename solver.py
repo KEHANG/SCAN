@@ -434,5 +434,5 @@ def random_occluding(images, size, ratio=0.4):
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
-    occluded = torch.Tensor.masked_fill_(masks, 0)
+    occluded = images.masked_fill_(masks, 0)
     return occluded
