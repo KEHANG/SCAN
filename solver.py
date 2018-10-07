@@ -90,7 +90,6 @@ class Solver(object):
 
 class super_beta_VAE(Solver):
     def __init__(self, args):
-        print('super.__init__')
         super(args)
 
         if args.dataset.lower() == 'dsprites':
@@ -317,23 +316,22 @@ class super_beta_VAE(Solver):
             print("=> no checkpoint found at '{}'".format(file_path))
 
 
-def ori_beta_VAE(super_beta_VAE):
+class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
-        print('ori.__init__')
         super(args)
 
-def beta_VAE(super_beta_VAE):
+class beta_VAE(super_beta_VAE):
     def __init__(self, args):
         pass
 
     def load_DAE_checkpoint(self):
         pass
 
-def DAE(Solver):
+class DAE(Solver):
     def __init__(self, args):
         pass
 
-def SCAN(Solver):
+class SCAN(Solver):
     def __init__(self, args):
         pass
 
