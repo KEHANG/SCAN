@@ -307,8 +307,8 @@ class super_beta_VAE(Solver):
     def get_win_states(self):
         return {'recon': self.win_recon,
                 'kld': self.win_kld,
-                'mu': self.mu,
-                'var': self.var,}
+                'mu': self.win_mu,
+                'var': self.win_var,}
     def load_win_states(self, win_states):
         self.win_recon = win_states['recon']
         self.win_kld = win_states['kld']
