@@ -197,8 +197,46 @@ class DAE_net(nn.Module):
         return self.decoder(z)
 
 class SCAN_net(nn.Module):
-    def __init__(self):
-        pass
+    def __init__(self, z_dim=32, nc=40):
+        super(SCAN_net, self).__init__()
+        self.z_dim = z_dim
+        self.nc = nc
+        self.encoder = nn.Sequential(
+            nn.Linear(nc, 500),
+            nn.ReLU(True),
+            nn.Linear(500, 500),
+            nn.ReLU(True),
+            nn.Linear(500, self.z_dim * 2),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(z_dim * 2, 500),
+            nn.ReLU(True),
+            nn.Linear(500, 500),
+            nn.ReLU(True),
+            nn.Linear(500, nc),
+            nn.Sigmoid(),
+        )
+        self.weight_init()
+
+    def weight_init(self):
+        for block in self._modules:
+            for m in self._modules[block]:
+                kaiming_init(m)
+
+    def forward(self, x):
+        distributions = self._encode(x)
+        mu = distributions[:, :self.z_dim]
+        logvar = distributions[:, self.z_dim:]
+        z = reparametrize(mu, logvar)
+        x_recon = self._decode(z)
+
+        return x_recon, mu, logvar
+
+    def _encode(self, x):
+        return self.encoder(x)
+
+    def _decode(self, z):
+        return self.decoder(z)
 
 def kaiming_init(m):
     if isinstance(m, (nn.Linear, nn.Conv2d)):

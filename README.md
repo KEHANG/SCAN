@@ -27,11 +27,13 @@ To reproduce the results of SCAN, sequentially run the three commands:
     sh scripts/SCAN.sh
     ```
 
-The original beta-VAE models are still supported, and examples of commands reproducing the results can be found in `scripts/original-beta_VAE/` <br>
+The original beta-VAE models are still supported, and examples of commands reproducing the results can be found in `scripts/original-beta_VAE/`
+
 To view them, you can also refer to the parent repo [Github Repo][]
 
 Acknowledgement:
-    I've referred to [this issue](https://github.com/miyosuda/scan/issues/1) to improve the visuality of beta-VAE when pretrained with DAE.
+
+    I've referred to [this issue](https://github.com/miyosuda/scan/issues/1), and used the DAE output to improve the visuality of beta-VAE.
 
 ### Reference
 1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]

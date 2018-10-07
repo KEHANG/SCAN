@@ -180,19 +180,18 @@ class super_beta_VAE(Solver):
     def training_process(self, x):
         x_recon, mu, logvar = self.net(x)
         recon_loss = self.recon_loss_function(x, x_recon)
-        dim_wise_kld = kl_divergence(mu, logvar)
-        total_kld = dim_wise_kld.sum()
+        kld = kl_divergence(mu, logvar)
 
         if self.args.objective == 'H':
-            loss = recon_loss + self.args.beta * total_kld
+            loss = recon_loss + self.args.beta * kld
         elif self.args.objective == 'B':
             C = torch.clamp(self.args.C_max/self.args.C_stop_iter*self.global_iter, 0, self.args.C_max.data[0])
-            loss = recon_loss + self.args.gamma * (total_kld - C).abs()
+            loss = recon_loss + self.args.gamma * (kld - C).abs()
 
         if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
             self.gather.insert(iter=self.global_iter,
                                mu=mu.mean(0).data, var=logvar.exp().mean(0).data,
-                               recon_loss=recon_loss.data, dim_wise_kld=dim_wise_kld.data)
+                               recon_loss=recon_loss.data, kld=kld.data)
 
         if self.global_iter % self.args.display_save_step == 0:
             self.vis_display([x, self.visual(x_recon)])
@@ -206,7 +205,7 @@ class super_beta_VAE(Solver):
         mus = torch.stack(self.gather.data['mu']).cpu()
         variances = torch.stack(self.gather.data['var']).cpu()
 
-        klds = torch.stack(self.gather.data['dim_wise_kld']).cpu()
+        klds = torch.stack(self.gather.data['kld']).cpu()
 
         legend = []
         for z_j in range(self.z_dim):
@@ -377,9 +376,10 @@ class SCAN(Solver):
         self.model = SCAN
         self.z_dim = args.SCAN_z_dim
         self.env_name = args.SCAN_env_name
-        super(SCAN, self).__init__(args)
+        self.win_recon = None
+        self.win_kld = None
 
-        self.set_net_and_optim(SCAN_net)
+        super(SCAN, self).__init__(args)
 
 
 def reconstruction_loss(X, Y, distribution):
@@ -404,13 +404,13 @@ def kl_divergence(mu, logvar):
         logvar = logvar.view(logvar.size(0), logvar.size(1))
 
     klds = -0.5*(1 + logvar - mu.pow(2) - logvar.exp())
-    dimension_wise_kld = klds.mean(0)
 
-    return dimension_wise_kld
+    return klds.mean(0).sum()
 
 def dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y):
     batch_size = mu_x.size(0)
     assert batch_size != 0
+
     if mu_x.data.ndimension() == 4:
         mu_x = mu_x.view(mu_x.size(0), mu_x.size(1))
     if logvar_x.data.ndimension() == 4:
@@ -424,6 +424,8 @@ def dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y):
     var_y = logvar_y.exp()
     klds = 0.5 * (var_x / var_y + (mu_x - mu_y) ** 2 / var_y - 1 + logvar_y - logvar_x)
 
+    return klds.mean(0).sum()
+
 class DataGather(object):
     def __init__(self):
         self.data = self.get_empty_data_dict()
@@ -431,7 +433,7 @@ class DataGather(object):
     def get_empty_data_dict(self):
         return dict(iter=[],
                     recon_loss=[],
-                    dim_wise_kld=[],
+                    kld=[],
                     mu=[],
                     var=[],
                     images=[],)
