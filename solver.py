@@ -332,7 +332,7 @@ class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(ori_beta_VAE, self).__init__(args)
 
-    def recon_loss_funtion(self, x, x_recon):
+    def recon_loss_function(self, x, x_recon):
         return reconstruction_loss(x, x_recon, self.decoder_dist)
 
 #---------------------------------NEW CLASS-------------------------------------#
@@ -344,7 +344,7 @@ class beta_VAE(super_beta_VAE):
         DAE_solver.net_mode(train=False)
         self.DAE_net = DAE_solver.net
 
-    def recon_loss_funtion(self, x, x_recon):
+    def recon_loss_function(self, x, x_recon):
         return reconstruction_loss(self.DAE_net(x), self.DAE_net(x_recon))
 
 #---------------------------------NEW CLASS-------------------------------------#
