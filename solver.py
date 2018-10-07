@@ -437,3 +437,4 @@ def random_occluding(images, size, ratio=0.4, cuda_or_not=True):
     masks = cuda(masks, cuda_or_not)
     occluded = images.masked_fill_(masks, 0)
     return occluded
+
