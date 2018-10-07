@@ -436,7 +436,6 @@ def random_occluding(images, size, cuda_or_not=True, ratio=0.3):
         return mask
 
     masks = torch.stack([random_mask() for i in range(batch_size)])
-    print(masks.sum())
     masks = cuda(masks, cuda_or_not)
     occluded.masked_fill_(masks, 0)
     return occluded
