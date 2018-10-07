@@ -19,7 +19,7 @@ vidsom -port 6059
 ```
 
 The original beta-VAE models are still supported, and examples of commands reproducing the results can be found in `scripts/original-beta_VAE/` <br>
-To view them, you can also refer to the parent repo [Github Repo]()
+To view them, you can also refer to the parent repo [Github Repo][]
 
 Acknowledgement:
 
