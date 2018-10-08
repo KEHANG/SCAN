@@ -77,7 +77,13 @@ class BetaVAE_H_net(nn.Module):
         return self.encoder(x)
 
     def _decode(self, z):
-        return self.decoder(z)
+        if z.shape[1] == self.z_dim:
+            return self.decoder(z)
+        else:
+            mu = z[:, :self.z_dim]
+            logvar = z[:, self.z_dim:]
+            z = reparametrize(mu, logvar)
+            return self.decoder(z)
 
 
 class BetaVAE_B_net(BetaVAE_H_net):
@@ -124,27 +130,6 @@ class BetaVAE_B_net(BetaVAE_H_net):
         )
         self.weight_init()
 
-    def weight_init(self):
-        for block in self._modules:
-            for m in self._modules[block]:
-                kaiming_init(m)
-
-    def forward(self, x):
-        distributions = self._encode(x)
-        mu = distributions[:, :self.z_dim]
-        logvar = distributions[:, self.z_dim:]
-        z = reparametrize(mu, logvar)
-        x_recon = self._decode(z).view(x.size())
-
-        return x_recon, mu, logvar
-
-    def _encode(self, x):
-        return self.encoder(x)
-
-    def _decode(self, z):
-        return self.decoder(z)
-
-
 class DAE_net(nn.Module):
     def __init__(self, z_dim=100, nc=3):
         super(DAE_net, self).__init__()
@@ -187,7 +172,6 @@ class DAE_net(nn.Module):
     def forward(self, x):
         x_encoded = self._encode(x)
         x_recon = self._decode(x_encoded)
-
         return x_recon
 
     def _encode(self, x):

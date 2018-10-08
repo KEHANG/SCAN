@@ -454,7 +454,7 @@ class SCAN(Solver):
         self.win_var = self.update_win(variances, self.win_var, legend[:self.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
-    def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=16, num_sym2img=16):
+    def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=16, num_sym2img=9):
         self.net_mode(train=False)
         n_dsets = self.data_loader.__len__()
         #interpolation = torch.arange(-limit, limit+0.1, inter)
@@ -491,7 +491,9 @@ class SCAN(Solver):
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=n_row)
 
         #sym2img
-
+        collection = []
+        for i_key in range(self.keys):
+            random_zs = np.random.normal(size=[num_sym2img, ])
 
         self.net_mode(train=True)
 
