@@ -532,6 +532,7 @@ def dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y):
 
     var_x = logvar_x.exp()
     var_y = logvar_y.exp()
+
     klds = 0.5 * (-1 + var_x / var_y + (mu_x - mu_y) ** 2 / var_y + logvar_y - logvar_x)
 
     return klds.mean(0).sum()
