@@ -30,7 +30,7 @@ parser.add_argument('--beta_VAE_z_dim', default=32, type=int, help='dimension of
 parser.add_argument('--SCAN_z_dim', default=32, type=int, help='dimension of the representation')
 parser.add_argument('--beta', default=4, type=float, help='used everywhere')
 parser.add_argument('--gamma', default=1000, type=float, help='used in beta_VAE of Burgess version')
-parser.add_argument('--lambda', default=10, type=float, help='used in SCAN')
+parser.add_argument('--Lambda', default=10, type=float, help='used in SCAN')
 parser.add_argument('--objective', default='H', type=str, help='beta-vae objective proposed in Higgins et al. or Burgess et al. H/B')
 parser.add_argument('--model', default='H', type=str, help='model proposed in Higgins et al. or Burgess et al. H/B')
 parser.add_argument('--C_max', default=25, type=float, help='capacity parameter(C) of bottleneck channel')
