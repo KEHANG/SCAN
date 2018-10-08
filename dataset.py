@@ -50,6 +50,7 @@ class CustomMixDataset(Dataset):
             vector.resize([1, self.n_key])
             print(vector.shape)
             attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
+        print(attr_tensor.shape)
 
         return attr_tensor
 
