@@ -56,6 +56,7 @@ class CustomMixDataset(Dataset):
             vector.resize([1, self.n_key])
             attr_tensor.append(vector)
         attr_tensor = np.concatenate(attr_tensor)
+        print(self.keys)
         pbar.write('[Dataset Loading Finished]')
         pbar.close()
 
