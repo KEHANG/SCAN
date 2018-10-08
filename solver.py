@@ -471,7 +471,7 @@ class SCAN(Solver):
             y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu().squeeze(0)
             image = toimage(image)
 
-            board = Image.new('RGB', (600, 100), 'white')
+            board = Image.new('RGB', (600, 200), 'white')
             board.paste(image, (18, 30))
 
             drawer = ImageDraw.Draw(board)
@@ -485,7 +485,7 @@ class SCAN(Solver):
             sorted_y = y_x.copy()
             sorted_y.sort(reverse=True)
             sym_text = ''
-            for i_key in range(5):
+            for i_key in range(7):
                 index = y_x.index(sorted_y[i_key])
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
             drawer.text((100, 20), sym_text, fill='black')
