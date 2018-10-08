@@ -519,6 +519,7 @@ class SCAN(Solver):
         #traverse
         images = []
 
+
         self.net_mode(train=True)
 
 
