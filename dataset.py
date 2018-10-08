@@ -61,7 +61,7 @@ class CustomTensorDataset(Dataset):
         return self.data_tensor.size(0)
 
 
-def return_data(args, image_only=True):
+def return_data(args, require_attr=False):
     name = args.dataset
     dset_dir = args.dset_dir
     batch_size = args.batch_size
@@ -83,7 +83,7 @@ def return_data(args, image_only=True):
             transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),])
         train_kwargs = {'root':root, 'transform':transform}
-        dset = CustomImageFolder if image_only else CustomMixDataset
+        dset = CustomImageFolder if not require_attr else CustomMixDataset
 
     elif name.lower() == 'dsprites':
         root = os.path.join(dset_dir, 'dsprites-dataset/dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz')

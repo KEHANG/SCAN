@@ -21,7 +21,7 @@ from dataset import return_data
 
 #---------------------------------NEW CLASS-------------------------------------#
 class Solver(ABC):
-    def __init__(self, args):
+    def __init__(self, args, require_attr=False):
         self.global_iter = 0
         self.args = args
 
@@ -51,7 +51,7 @@ class Solver(ABC):
         self.optim = optim.Adam(self.net.parameters(), lr=self.args.lr,
                                betas=(self.args.beta1, self.args.beta2), eps=self.args.epsilon)
         self.load_checkpoint(self.args.ckpt_name)
-        self.data_loader = return_data(self.args)
+        self.data_loader = return_data(self.args, require_attr)
 
     def prepare_training(self):
         pass
@@ -381,7 +381,7 @@ class SCAN(Solver):
         self.win_var = None
         self.keys = None
 
-        super(SCAN, self).__init__(args)
+        super(SCAN, self).__init__(args, require_attr=True)
 
         beta_VAE_solver = beta_VAE(args)
         beta_VAE_solver.net_mode(train=False)
@@ -389,7 +389,6 @@ class SCAN(Solver):
         self.DAE_net = beta_VAE_solver.DAE_net
 
     def training_process(self, data):
-        print(data.size())
         [x, y, keys] = data
         if self.keys is None:
             self.keys = keys
