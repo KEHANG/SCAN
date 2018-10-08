@@ -407,6 +407,7 @@ class SCAN(Solver):
         recon_loss = reconstruction_loss(y, y_recon, 'bernoulli')
         kld = kl_divergence(mu_y, logvar_y)
         relv = dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y)
+        print(mu_x.shape, logvar_x.shape, mu_y.shape, logvar_y.shape)
         loss = recon_loss + self.args.beta * kld + self.args.gamma * relv
 
         if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
@@ -530,13 +531,7 @@ def dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y):
     if logvar_y.data.ndimension() == 4:
         logvar_y = logvar_y.view(logvar_y.size(0), logvar_y.size(1))
 
-    var_x = logvar_x.exp()
-    var_y = logvar_y.exp()
-    f1 = var_x / var_y
-    f2 = (mu_x - mu_y) ** 2
-    f3 = f2 / var_y
-    klds = 0.5 * (-1 + f1 + f3 + logvar_y - logvar_x)
-    #klds = 0.5 * (-1 + var_x / var_y + ((mu_x - mu_y) ** 2) / var_y + logvar_y - logvar_x)
+    klds = 0.5 * (-1 + var_x / var_y + ((mu_x - mu_y) ** 2) / var_y + logvar_y - logvar_x)
 
     return klds.mean(0).sum()
 
