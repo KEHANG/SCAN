@@ -8,10 +8,11 @@ from abc import ABC, abstractmethod
 from tqdm import tqdm
 import visdom
 import random
+from PIL import Image, ImageDraw
+import math
 
 import torch
 import torch.optim as optim
-from torch.autograd import Variable
 from torchvision.utils import make_grid, save_image
 
 from utils import cuda, grid2gif
@@ -76,7 +77,7 @@ class Solver(ABC):
                 self.global_iter += 1
                 self.pbar.update(1)
 
-                x = Variable(cuda(x, self.args.cuda))
+                x = self.tensor(x)
                 loss = self.training_process(x)
                 self.optim.zero_grad()
                 loss.backward()
@@ -137,7 +138,6 @@ class Solver(ABC):
             torch.save(states, f)
         if not silent:
             print("=> saved checkpoint '{}' (iter {})".format(file_path, self.global_iter))
-
     def load_checkpoint(self, filename):
         file_path = os.path.join(self.ckpt_dir, filename)
         if os.path.isfile(file_path):
@@ -153,6 +153,8 @@ class Solver(ABC):
             for key in keys:
                 env_name = self.env_name + '_' + key
                 self.vis.delete_env(env_name)
+    def tensor(self, tensor):
+        return self.tensor(tensor)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
@@ -173,7 +175,7 @@ class super_beta_VAE(Solver):
         super(super_beta_VAE, self).__init__(args)
 
     def prepare_training(self):
-        self.args.C_max = Variable(cuda(torch.FloatTensor([self.args.C_max]), self.args.cuda))
+        self.args.C_max = self.tensor(torch.FloatTensor([self.args.C_max]))
     def recon_loss_funtion(self, x, x_recon):
         pass
     def training_process(self, x):
@@ -227,10 +229,10 @@ class super_beta_VAE(Solver):
         rand_idx = random.randint(1, n_dsets-1)
 
         random_img = self.data_loader.dataset.__getitem__(rand_idx)
-        random_img = Variable(cuda(random_img, self.args.cuda), volatile=True).unsqueeze(0)
+        random_img = self.tensor(random_img).unsqueeze(0)
         random_img_z = encoder(random_img)[:, :self.z_dim]
 
-        random_z = Variable(cuda(torch.rand(1, self.z_dim), self.args.cuda), volatile=True)
+        random_z = self.tensor(torch.rand(1, self.z_dim))
 
         if self.args.dataset == 'dsprites':
             fixed_idx1 = 87040 # square
@@ -238,15 +240,15 @@ class super_beta_VAE(Solver):
             fixed_idx3 = 578560 # heart
 
             fixed_img1 = self.data_loader.dataset.__getitem__(fixed_idx1)
-            fixed_img1 = Variable(cuda(fixed_img1, self.args.cuda), volatile=True).unsqueeze(0)
+            fixed_img1 = self.tensor(fixed_img1).unsqueeze(0)
             fixed_img_z1 = encoder(fixed_img1)[:, :self.z_dim]
 
             fixed_img2 = self.data_loader.dataset.__getitem__(fixed_idx2)
-            fixed_img2 = Variable(cuda(fixed_img2, self.args.cuda), volatile=True).unsqueeze(0)
+            fixed_img2 = self.tensor(fixed_img2).unsqueeze(0)
             fixed_img_z2 = encoder(fixed_img2)[:, :self.z_dim]
 
             fixed_img3 = self.data_loader.dataset.__getitem__(fixed_idx3)
-            fixed_img3 = Variable(cuda(fixed_img3, self.args.cuda), volatile=True).unsqueeze(0)
+            fixed_img3 = self.tensor(fixed_img3).unsqueeze(0)
             fixed_img_z3 = encoder(fixed_img3)[:, :self.z_dim]
 
             Z = {'fixed_square':fixed_img_z1, 'fixed_ellipse':fixed_img_z2,
@@ -254,7 +256,7 @@ class super_beta_VAE(Solver):
         else:
             fixed_idx = 0
             fixed_img = self.data_loader.dataset.__getitem__(fixed_idx)
-            fixed_img = Variable(cuda(fixed_img, self.args.cuda), volatile=True).unsqueeze(0)
+            fixed_img = self.tensor(fixed_img).unsqueeze(0)
             fixed_img_z = encoder(fixed_img)[:, :self.z_dim]
 
             Z = {'fixed_img':fixed_img_z, 'random_img':random_img_z, 'random_z':random_z}
@@ -275,9 +277,8 @@ class super_beta_VAE(Solver):
             samples = torch.cat(samples, dim=0).cpu()
             title = '{}_latent_traversal(iter:{})'.format(key, self.global_iter)
 
-            if self.args.vis_on:
-                self.vis.images(samples, env=self.env_name+'_traverse',
-                                opts=dict(title=title), nrow=len(interpolation))
+            self.vis.images(samples, env=self.env_name+'_traverse',
+                            opts=dict(title=title), nrow=len(interpolation))
 
         if self.args.save_output:
             output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
@@ -386,11 +387,13 @@ class SCAN(Solver):
         beta_VAE_solver = beta_VAE(args)
         beta_VAE_solver.net_mode(train=False)
         self.beta_VAE_net = beta_VAE_solver.net
+        self.DAE_net = beta_VAE_solver.DAE_net
 
     def training_process(self, data):
         [x, y, keys] = data
         if self.keys is None:
             self.keys = keys
+            self.n_key = len(keys)
         y_recon, mu_y, logvar_y = self.net(y)
         z_x = self.beta_VAE_net._encode(x)
         mu_x = z_x[:self.args.beta_VAE_z_dim]
@@ -411,7 +414,7 @@ class SCAN(Solver):
         return loss
 
     def visual(self, y):
-        return self.beta_VAE_net.DAE_net(self.beta_VAE_net._decode(self.net._encode(y)))
+        return self.DAE_net(self.beta_VAE_net._decode(self.net._encode(y)))
 
     def vis_lines(self):
         self.net_mode(train=False)
@@ -434,62 +437,41 @@ class SCAN(Solver):
         self.win_var = self.update_win(variances, self.win_var, legend[:self.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
-    def vis_traverse(self, limit=3, inter=2/3, loc=-1):
+    def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=16, num_sym2img=16):
         self.net_mode(train=False)
-
-        decoder = self.net.decoder
-        encoder = self.net.encoder
+        n_dsets = self.data_loader.__len__()
         interpolation = torch.arange(-limit, limit+0.1, inter)
 
-        n_dsets = len(self.data_loader.dataset)
+        # img2sym
+        images = []
+        for i in range(num_img2sym):
+            i_rand = random.randint(0, n_dsets)
+            [image, attr, _] = self.data_loader.__getitem__(i_rand)
+            image = self.tensor(image).unsqueeze(0)
+            y_x = self.net._decode(self.beta_VAE_net._encode(image)).squeeze(0).data
+            image = Image.fromarray(image.data)
 
-        rand_idx = random.randint(1, n_dsets-1)
-        random_img = self.data_loader.dataset.__getitem__(rand_idx)
-        random_img = Variable(cuda(random_img, self.args.cuda), volatile=True).unsqueeze(0)
-        random_img_z = encoder(random_img)[:, :self.z_dim]
+            board = Image.new('RGBA', (300, 100), 'white')
+            board.paste(image.data, (18, 30))
 
-        random_z = Variable(cuda(torch.rand(1, self.z_dim), self.args.cuda), volatile=True)
+            drawer = ImageDraw.Draw(board)
+            attr_text = ''
+            for i_key in range(self.n_key):
+                if attr[i_key] == 1:
+                    attr_text = attr_text + ' ' + self.keys[i_key]
+            drawer.text((0, 5), attr_text)
 
-        fixed_idx = 0
-        fixed_img = self.data_loader.dataset.__getitem__(fixed_idx)
-        fixed_img = Variable(cuda(fixed_img, self.args.cuda), volatile=True).unsqueeze(0)
-        fixed_img_z = encoder(fixed_img)[:, :self.z_dim]
+            sorted_y = y_x.copy().sort(reverse=True)
+            sym_text = ''
+            for i_key in range(5):
+                index = y_x.index(sorted_y[i_key])
+                sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
+            drawer.text((100, 20), sym_text)
 
-        Z = {'fixed_img':fixed_img_z, 'random_img':random_img_z, 'random_z':random_z}
-
-        gifs = []
-        for key in Z.keys():
-            z_ori = Z[key]
-            samples = []
-            for row in range(self.z_dim):
-                if loc != -1 and row != loc:
-                    continue
-                z = z_ori.clone()
-                for val in interpolation:
-                    z[:, row] = val
-                    sample = self.visual(decoder(z)).data
-                    samples.append(sample)
-                    gifs.append(sample)
-            samples = torch.cat(samples, dim=0).cpu()
-            title = '{}_latent_traversal(iter:{})'.format(key, self.global_iter)
-
-            if self.args.vis_on:
-                self.vis.images(samples, env=self.env_name+'_traverse',
-                                opts=dict(title=title), nrow=len(interpolation))
-
-        if self.args.save_output:
-            output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
-            os.makedirs(output_dir, exist_ok=True)
-            gifs = torch.cat(gifs)
-            gifs = gifs.view(len(Z), self.z_dim, len(interpolation), self.nc, 64, 64).transpose(1, 2)
-            for i, key in enumerate(Z.keys()):
-                for j, val in enumerate(interpolation):
-                    save_image(tensor=gifs[i][j].cpu(),
-                               filename=os.path.join(output_dir, '{}_{}.jpg'.format(key, j)),
-                               nrow=self.z_dim, pad_value=1)
-
-                grid2gif(os.path.join(output_dir, key+'*.jpg'),
-                         os.path.join(output_dir, key+'.gif'), delay=10)
+            images.append(board)
+        n_row = int(math.sqrt(num_img2sym))
+        self.vis.images(images, env=self.env_name+'_img2sym',
+                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=n_row)
 
         self.net_mode(train=True)
 
