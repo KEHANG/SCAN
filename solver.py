@@ -493,6 +493,7 @@ class SCAN(Solver):
         self.net_mode(train=True)
 
 
+
 def reconstruction_loss(X, Y, distribution):
     batch_size = X.size(0)
     assert batch_size != 0
