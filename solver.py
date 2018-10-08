@@ -399,9 +399,9 @@ class SCAN(Solver):
         x = self.tensor(x)
         y = self.tensor(y)
         if self.keys is None:
-            print(self.keys)
             self.keys = keys
             self.n_key = len(keys)
+            print(self.keys, keys)
         y_recon, mu_y, logvar_y = self.net(y)
         z_x = self.beta_VAE_net._encode(x)
         mu_x = z_x[:, :self.args.beta_VAE_z_dim]
