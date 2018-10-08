@@ -459,6 +459,7 @@ class SCAN(Solver):
     def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=16, num_sym2img=9):
         self.net_mode(train=False)
         n_dsets = self.data_loader.__len__()
+        toimage = transforms.ToPILImage('RGB')
         #interpolation = torch.arange(-limit, limit+0.1, inter)
 
         # img2sym
@@ -468,8 +469,7 @@ class SCAN(Solver):
             [image, attr, _] = self.data_loader.dataset.__getitem__(i_rand)
             image = self.tensor(image).unsqueeze(0)
             y_x = self.net._decode(self.beta_VAE_net._encode(image)).squeeze(0).data
-            image = transforms.ToPILImage(image.data)
-            image.resize((self.args.image_size, self.args.image_size))
+            image = toimage(image.squeeze(0))
 
             board = Image.new('RGBA', (300, 100), 'white')
             board.paste(image, (18, 30))
