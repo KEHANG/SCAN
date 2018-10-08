@@ -418,6 +418,7 @@ class SCAN(Solver):
 
         if self.global_iter % self.args.display_save_step == 0:
             self.vis_display([x, self.visual(y)])
+
         return loss
 
     def visual(self, y):
@@ -456,7 +457,7 @@ class SCAN(Solver):
         self.win_var = self.update_win(variances, self.win_var, legend[:self.z_dim], 'posterior variance')
 
         self.net_mode(train=True)
-    def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=16, num_sym2img=9):
+    def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=4, num_sym2img=9):
         self.net_mode(train=False)
         n_dsets = self.data_loader.__len__()
         toimage = transforms.ToPILImage('RGB')
@@ -470,7 +471,7 @@ class SCAN(Solver):
             y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu().squeeze(0)
             image = toimage(image)
 
-            board = Image.new('RGB', (300, 100), 'white')
+            board = Image.new('RGB', (600, 100), 'white')
             board.paste(image, (18, 30))
 
             drawer = ImageDraw.Draw(board)
