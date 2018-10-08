@@ -53,7 +53,6 @@ class Solver(ABC):
         self.load_checkpoint(self.args.ckpt_name)
         self.data_loader = return_data(self.args)
 
-    @abstractmethod
     def prepare_training(self):
         pass
     @abstractmethod
@@ -415,6 +414,18 @@ class SCAN(Solver):
 
     def visual(self, y):
         return self.DAE_net(self.beta_VAE_net._decode(self.net._encode(y)))
+    def get_win_states(self):
+        return {'recon': self.win_recon,
+                'kld': self.win_kld,
+                'relv': self.win_relv,
+                'mu': self.win_mu,
+                'var': self.win_var,}
+    def load_win_states(self, win_states):
+        self.win_recon = win_states['recon']
+        self.win_kld = win_states['kld']
+        self.win_relv = win_states['relvs']
+        self.win_var = win_states['var']
+        self.win_mu = win_states['mu']
 
     def vis_lines(self):
         self.net_mode(train=False)
@@ -440,7 +451,7 @@ class SCAN(Solver):
     def vis_traverse(self, limit=3, inter=2/3, loc=-1, num_img2sym=16, num_sym2img=16):
         self.net_mode(train=False)
         n_dsets = self.data_loader.__len__()
-        interpolation = torch.arange(-limit, limit+0.1, inter)
+        #interpolation = torch.arange(-limit, limit+0.1, inter)
 
         # img2sym
         images = []
