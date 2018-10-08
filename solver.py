@@ -524,7 +524,7 @@ class SCAN(Solver):
             def set_value(v):
                 vector = random_y.copy()
                 vector[0, i] = v
-                return 
+                return vector
             random_ys = self.tensor(np.concatenate([set_value(j) for j in interpolation], axis=0))
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
             image_row = toimage(make_grid(image_subset, nrow=1))
@@ -545,6 +545,8 @@ class SCAN(Solver):
         self.net_mode(train=True)
 
 
+
+#---------------------------------UTILITIES-------------------------------------#
 
 def reconstruction_loss(X, Y, distribution):
     batch_size = X.size(0)
