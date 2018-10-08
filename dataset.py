@@ -31,7 +31,7 @@ class CustomMixDataset(Dataset):
         self.attr_tensor = self.get_tensor(root)
 
     def __getitem__(self, index):
-        return [self.image_folder.__getitem__(index), self.data_tensor[index], self.keys]
+        return [self.image_folder.__getitem__(index), self.attr_tensor[index], self.keys]
 
     def __len__(self):
         return self.len
