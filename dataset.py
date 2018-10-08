@@ -46,9 +46,9 @@ class CustomMixDataset(Dataset):
         for line in lines:
             words = [word for word in line.split(' ')[1:] if word!='' and word!='\n']
             vector = list(map(lambda x: (1 + int(x)) // 2, words))
+            print(vector)
             vector = np.array(vector).resize([1, self.n_key])
             attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
-            print(attr_tensor.size())
 
         return attr_tensor
 
