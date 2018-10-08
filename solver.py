@@ -507,9 +507,11 @@ class SCAN(Solver):
 
             board = Image.new('RGB', (nrow * self.args.image_size, nrow * self.args.image_size + 15), 'white') 
             board.paste(image_subset, (0, 15))
-            drawer = ImageDraw.Draw()
+            drawer = ImageDraw.Draw(board)
             drawer.text((0, 0), self.keys[i], fill='black')
+
             images.append(image_subset)
+
         images = torch.stack(images, dim=0)
         self.vis.images(images, env=self.env_name+'_sym2img',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=8)
