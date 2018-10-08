@@ -14,6 +14,7 @@ import math
 import torch
 import torch.optim as optim
 from torchvision.utils import make_grid, save_image
+from torchvision import transforms
 
 from utils import cuda, grid2gif
 from model import BetaVAE_H_net, BetaVAE_B_net, DAE_net, SCAN_net
@@ -466,7 +467,7 @@ class SCAN(Solver):
             [image, attr, _] = self.data_loader.dataset.__getitem__(i_rand)
             image = self.tensor(image).unsqueeze(0)
             y_x = self.net._decode(self.beta_VAE_net._encode(image)).squeeze(0).data
-            image = Image.fromarray(image.data)
+            image = transforms.ToPILImage(image.data)
 
             board = Image.new('RGBA', (300, 100), 'white')
             board.paste(image.data, (18, 30))
