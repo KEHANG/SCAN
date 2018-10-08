@@ -152,7 +152,7 @@ class Solver(ABC):
             print("=> loaded checkpoint '{} (iter {})'".format(file_path, self.global_iter))
         else:
             print("=> no checkpoint found at '{}'".format(file_path))
-            keys = ['lines', 'reconstruction', 'traverse']
+            keys = ['lines', 'reconstruction', 'traverse', 'img2sym', 'sym2img']
             for key in keys:
                 env_name = self.env_name + '_' + key
                 self.vis.delete_env(env_name)
