@@ -463,7 +463,7 @@ class SCAN(Solver):
         images = []
         for i in range(num_img2sym):
             i_rand = random.randint(0, n_dsets)
-            [image, attr, _] = self.data_loader.__getitem__(i_rand)
+            [image, attr, _] = self.data_loader.dataset.__getitem__(i_rand)
             image = self.tensor(image).unsqueeze(0)
             y_x = self.net._decode(self.beta_VAE_net._encode(image)).squeeze(0).data
             image = Image.fromarray(image.data)
