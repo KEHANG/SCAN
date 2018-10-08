@@ -503,6 +503,7 @@ class SCAN(Solver):
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z)))
             nrow = int(math.sqrt(num_sym2img))
             image_subset = make_grid(image_subset, nrow=int(math.sqrt(num_sym2img)))
+            image_subset.resize((nrow * self.args.image_size, nrow * self.args.image_size))
 
             board = Image.new('RGB', (nrow * self.args.image_size, nrow * self.args.image_size + 15), 'white') 
             board.paste(image_subset, (0, 15))
