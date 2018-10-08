@@ -478,7 +478,7 @@ class SCAN(Solver):
             for i_key in range(self.n_key):
                 if attr[i_key] >= 1.:
                     attr_text = attr_text + ' ' + self.keys[i_key]
-            drawer.text((0, 5), attr_text)
+            drawer.text((0, 5), attr_text, fill='black')
 
             y_x = y_x.tolist()
             sorted_y = y_x.copy()
@@ -487,7 +487,7 @@ class SCAN(Solver):
             for i_key in range(5):
                 index = y_x.index(sorted_y[i_key])
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
-            drawer.text((100, 20), sym_text)
+            drawer.text((100, 20), sym_text, fill='black')
 
             images.append(transforms.ToTensor()(board))
         images = torch.stack(images, dim=0)
@@ -497,11 +497,17 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_z = np.random.normal([num_sym2img, self.z_dim])
+            random_z = np.random.normal(size=[num_sym2img, self.z_dim])
             random_z[:, i] = 1
             random_z = self.tensor(random_z)
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z)))
+            nrow = int(math.sqrt(num_sym2img))
             image_subset = make_grid(image_subset, nrow=int(math.sqrt(num_sym2img)))
+
+            board = Image.new('RGB', (nrow * self.args.image_size, nrow * self.args.image_size + 15), 'white') 
+            board.paste(image_subset, (0, 15))
+            drawer = ImageDraw.Draw()
+            drawer.text((0, 0), self.keys[i], fill='black')
             images.append(image_subset)
         images = torch.stack(images, dim=0)
         self.vis.images(images, env=self.env_name+'_sym2img',
