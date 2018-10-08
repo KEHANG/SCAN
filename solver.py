@@ -480,6 +480,7 @@ class SCAN(Solver):
                     attr_text = attr_text + ' ' + self.keys[i_key]
             drawer.text((0, 5), attr_text)
 
+            y_x = y_x.tolist()
             sorted_y = y_x.copy().sort(reverse=True)
             sym_text = ''
             for i_key in range(5):
@@ -495,7 +496,7 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_z = np.zeros([num_sym2img, self.z_dim])
+            random_z = np.random.normal([num_sym2img, self.z_dim])
             random_z[:, i] = 1
             image_subset = self.beta_VAE_net._decode(random_z)
 
