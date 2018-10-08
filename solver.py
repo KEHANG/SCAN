@@ -471,24 +471,24 @@ class SCAN(Solver):
             y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu().squeeze(0)
             image = toimage(image)
 
-            board = Image.new('RGB', (600, 200), 'white')
+            board = Image.new('RGB', (400, 200), 'white')
             board.paste(image, (18, 30))
 
             drawer = ImageDraw.Draw(board)
             attr_text = ''
             for i_key in range(self.n_key):
                 if attr[i_key] >= 1.:
-                    attr_text = attr_text + ' ' + self.keys[i_key]
-            drawer.text((0, 5), attr_text, fill='black')
+                    attr_text = attr_text + self.keys[i_key] + '\n'
+            drawer.text((100, 10), attr_text, fill='black')
 
             y_x = y_x.tolist()
             sorted_y = y_x.copy()
             sorted_y.sort(reverse=True)
             sym_text = ''
-            for i_key in range(7):
+            for i_key in range(10):
                 index = y_x.index(sorted_y[i_key])
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
-            drawer.text((100, 20), sym_text, fill='black')
+            drawer.text((250, 10), sym_text, fill='black')
 
             images.append(transforms.ToTensor()(board))
         images = torch.stack(images, dim=0)
