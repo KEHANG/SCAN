@@ -470,7 +470,7 @@ class SCAN(Solver):
             y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu().squeeze(0)
             image = toimage(image)
 
-            board = Image.new('RGBA', (300, 100), 'white')
+            board = Image.new('RGB', (300, 100), 'white')
             board.paste(image, (18, 30))
 
             drawer = ImageDraw.Draw(board)
