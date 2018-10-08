@@ -399,7 +399,7 @@ class SCAN(Solver):
         x = self.tensor(x)
         y = self.tensor(y)
         if self.keys is None:
-            self.keys = keys[0]
+            self.keys = keys[:, 0].tolist()
             self.n_key = len(self.keys)
         y_recon, mu_y, logvar_y = self.net(y)
         z_x = self.beta_VAE_net._encode(x)
@@ -491,9 +491,8 @@ class SCAN(Solver):
             drawer.text((100, 20), sym_text)
 
             images.append(board)
-        n_row = int(math.sqrt(num_img2sym))
         self.vis.images(images, env=self.env_name+'_img2sym',
-                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=n_row)
+                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=int(math.sqrt(num_img2sym)))
 
         #sym2img
         images = []
@@ -502,6 +501,7 @@ class SCAN(Solver):
             random_z[:, i] = 1
             random_z = self.tensor(random_z)
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z)))
+            image_subset = make_grid(image_subset, nrow=int(math.sqrt(num_sym2img)))
 
         self.net_mode(train=True)
 
