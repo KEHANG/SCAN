@@ -209,7 +209,7 @@ class SCAN_net(nn.Module):
             nn.Linear(500, self.z_dim * 2),
         )
         self.decoder = nn.Sequential(
-            nn.Linear(z_dim * 2, 500),
+            nn.Linear(z_dim, 500),
             nn.ReLU(True),
             nn.Linear(500, 500),
             nn.ReLU(True),

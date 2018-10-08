@@ -47,7 +47,7 @@ class CustomMixDataset(Dataset):
         self.n_key = len(self.keys)
         attr_tensor = []
         pbar = tqdm(total=self.len)
-        pbar.set_description('Loading Dataset')
+        pbar.set_description('[Loading Dataset]')
         for line in lines:
             pbar.update(1)
             words = [word for word in line.split(' ')[1:] if word!='' and word!='\n']
