@@ -491,9 +491,6 @@ class SCAN(Solver):
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=n_row)
 
         #sym2img
-        collection = []
-        for i_key in range(self.keys):
-            random_zs = np.random.normal(size=[num_sym2img, ])
 
         self.net_mode(train=True)
 
