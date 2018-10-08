@@ -469,7 +469,7 @@ class SCAN(Solver):
             [image, attr, _] = self.data_loader.dataset.__getitem__(i_rand)
             image = self.tensor(image).unsqueeze(0)
             y_x = self.net._decode(self.beta_VAE_net._encode(image)).squeeze(0).data
-            image = toimage(image.squeeze(0))
+            image = toimage(image.squeeze(0).data)
 
             board = Image.new('RGBA', (300, 100), 'white')
             board.paste(image, (18, 30))
