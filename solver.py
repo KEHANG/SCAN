@@ -497,7 +497,7 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_z = np.random.normal(size=[num_sym2img, self.z_dim])
+            random_z = np.random.normal(size=[num_sym2img, self.nc])
             random_z[:, i] = 1
             random_z = self.tensor(random_z)
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z)))
