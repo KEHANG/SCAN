@@ -40,8 +40,9 @@ class CustomMixDataset(Dataset):
         attr_file = open(os.path.join(root, 'Anno/list_attr_celeba.txt'), 'r')
         lines = attr_file.readlines()
         self.len = int(lines.pop(0))
-        self.keys = list(map(lambda x: x.rstrip(' '), lines.pop(0).split(',')))
-        print(self.keys)
+        def isnt_punct(w):
+            return not w in ['', ' ', ',', '\n']
+        self.keys = list(map(lambda x: x.lstrip(' '), list(filter(isnt_punct, lines.pop(0).split(' ')))))
         self.n_key = len(self.keys)
         attr_tensor = None
         for line in lines:
