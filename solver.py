@@ -21,11 +21,11 @@ from dataset import return_data
 
 #---------------------------------NEW CLASS-------------------------------------#
 class Solver(ABC):
-    def __init__(self, args, require_attr=False):
+    def __init__(self, args, require_attr=False, nc=None):
         self.global_iter = 0
         self.args = args
 
-        if not self.nc is None:
+        if not nc is None:
             if args.dataset.lower() == 'dsprites':
                 self.nc = 1
                 self.decoder_dist = 'bernoulli'
@@ -37,6 +37,8 @@ class Solver(ABC):
                 self.decoder_dist = 'gaussian'
             else:
                 raise NotImplementedError
+        else:
+            self.nc = nc
 
         self.output_dir = os.path.join(args.root_dir, self.env_name, args.output_dir)
         self.ckpt_dir = os.path.join(args.root_dir, self.env_name, args.ckpt_dir)
@@ -165,7 +167,6 @@ class super_beta_VAE(Solver):
         else:
             raise NotImplementedError('only support model H or B')
         self.z_dim = args.beta_VAE_z_dim
-        self.nc = None
         self.env_name = args.beta_VAE_env_name
         self.win_recon = None
         self.win_kld = None
@@ -339,7 +340,6 @@ class DAE(Solver):
         self.win_recon = None
         self.model = DAE_net
         self.z_dim = args.DAE_z_dim
-        self.nc = None
         self.env_name = args.DAE_env_name
 
         super(DAE, self).__init__(args)
@@ -377,7 +377,6 @@ class SCAN(Solver):
     def __init__(self, args):
         self.model = SCAN_net
         self.z_dim = args.SCAN_z_dim
-        self.nc = 40
         self.env_name = args.SCAN_env_name
         self.win_recon = None
         self.win_kld = None
@@ -386,7 +385,7 @@ class SCAN(Solver):
         self.win_var = None
         self.keys = None
 
-        super(SCAN, self).__init__(args, require_attr=True)
+        super(SCAN, self).__init__(args, require_attr=True, nc=40)
 
         beta_VAE_solver = beta_VAE(args)
         beta_VAE_solver.net_mode(train=False)
