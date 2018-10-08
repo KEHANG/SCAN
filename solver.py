@@ -484,13 +484,12 @@ class SCAN(Solver):
             sorted_y = y_x.copy()
             sorted_y.sort(reverse=True)
             sym_text = ''
-            print(len(y_x), len(self.keys))
             for i_key in range(5):
                 index = y_x.index(sorted_y[i_key])
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
             drawer.text((100, 20), sym_text)
 
-            images.append(board)
+            images.append(transforms.ToTensor(board))
         self.vis.images(images, env=self.env_name+'_img2sym',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=int(math.sqrt(num_img2sym)))
 
@@ -503,6 +502,8 @@ class SCAN(Solver):
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z)))
             image_subset = make_grid(image_subset, nrow=int(math.sqrt(num_sym2img)))
             images.append(image_subset)
+        self.vis.images(images, env=self.env_name+'_sym2img',
+                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=8)
 
         self.net_mode(train=True)
 
