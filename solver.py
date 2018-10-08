@@ -460,7 +460,7 @@ class SCAN(Solver):
         self.net_mode(train=False)
         n_dsets = self.data_loader.__len__()
         toimage = transforms.ToPILImage('RGB')
-        #interpolation = torch.arange(-limit, limit+0.1, inter)
+        interpolation = torch.arange(-limit, limit+0.1, inter)
 
         # img2sym
         images = []
@@ -497,10 +497,10 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_z = np.random.normal(size=[num_sym2img, self.nc])
-            random_z[:, i] = 1
-            random_z = self.tensor(random_z)
-            image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z))).cpu().data
+            random_ys = np.random.normal(size=[num_sym2img, self.nc])
+            random_ys[:, i] = 1
+            random_ys = self.tensor(random_ys)
+            image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
             nrow = int(math.sqrt(num_sym2img))
             image_subset = toimage(make_grid(image_subset, nrow=int(math.sqrt(num_sym2img))))
             image_subset.resize((nrow * self.args.image_size, nrow * self.args.image_size))
@@ -514,10 +514,32 @@ class SCAN(Solver):
 
         images = torch.stack(images, dim=0)
         self.vis.images(images, env=self.env_name+'_sym2img',
-                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=8)
+                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=5)
 
         #traverse
         images = []
+        for i in range(self.n_key):
+            n_traverse = len(list(interpolation))
+            random_y = np.random.normal(size=[1, self.nc])
+            def set_value(v):
+                vector = random_y.copy()
+                vector[0, i] = v
+                return 
+            random_ys = self.tensor(np.concatenate([set_value(j) for j in interpolation], dim=0))
+            image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
+            image_row = toimage(make_grid(image_subset, nrow=1))
+            image_row.resize((n_traverse * self.args.image_size, self.args.image_size))
+
+            board = Image.new('RGB', (n_traverse * self.args.image_size, self.args.image_size + 15), 'white')
+            board.paste(image_row, (0, 15))
+            drawer = ImageDraw.Draw(board)
+            drawer.text((0, 0), self.keys[i], fill='black')
+
+            images.append(transforms.ToTensor()(board))
+
+        images = torch.stack(images, dim=0)
+        self.vis.images(images, env=self.env_name+'_sym2img',
+                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=1)
 
 
         self.net_mode(train=True)
