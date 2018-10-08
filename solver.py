@@ -25,7 +25,7 @@ class Solver(ABC):
         self.global_iter = 0
         self.args = args
 
-        if not nc is None:
+        if nc is None:
             if args.dataset.lower() == 'dsprites':
                 self.nc = 1
                 self.decoder_dist = 'bernoulli'
