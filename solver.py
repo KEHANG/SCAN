@@ -76,7 +76,6 @@ class Solver(ABC):
                 self.global_iter += 1
                 self.pbar.update(1)
 
-                x = self.tensor(x)
                 loss = self.training_process(x)
                 self.optim.zero_grad()
                 loss.backward()
@@ -178,6 +177,7 @@ class super_beta_VAE(Solver):
     def recon_loss_funtion(self, x, x_recon):
         pass
     def training_process(self, x):
+        x = self.tensor(x)
         x_recon, mu, logvar = self.net(x)
         recon_loss = self.recon_loss_function(x, x_recon)
         kld = kl_divergence(mu, logvar)
@@ -344,6 +344,7 @@ class DAE(Solver):
     def prepare_training(self):
         pass
     def training_process(self, x):
+        x = self.tensor(x)
         masked = random_occluding(x, [self.args.batch_size, self.nc, self.args.image_size, self.args.image_size], cuda_or_not=self.args.cuda)
         x_recon = self.net(masked)
         recon_loss = reconstruction_loss(x, x_recon, self.decoder_dist)
@@ -390,6 +391,8 @@ class SCAN(Solver):
 
     def training_process(self, data):
         [x, y, keys] = data
+        x = self.tensor(x)
+        y = self.tensor(y)
         if self.keys is None:
             self.keys = keys
             self.n_key = len(keys)
