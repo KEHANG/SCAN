@@ -484,6 +484,7 @@ class SCAN(Solver):
             sorted_y = y_x.copy()
             sorted_y.sort(reverse=True)
             sym_text = ''
+            print(len(y_x), len(self.keys))
             for i_key in range(5):
                 index = y_x.index(sorted_y[i_key])
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
@@ -499,7 +500,8 @@ class SCAN(Solver):
         for i in range(self.n_key):
             random_z = np.random.normal([num_sym2img, self.z_dim])
             random_z[:, i] = 1
-            image_subset = self.DAE_net(self.beta_VAE_net._decode(random_z))
+            random_z = self.tensor(random_z)
+            image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_z)))
 
         self.net_mode(train=True)
 
