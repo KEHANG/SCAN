@@ -409,6 +409,7 @@ class SCAN(Solver):
         recon_loss = reconstruction_loss(y, y_recon, 'bernoulli')
         kld = kl_divergence(mu_y, logvar_y)
         relv = dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y)
+
         loss = recon_loss + self.args.beta * kld + self.args.Lambda * relv
 
         if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
