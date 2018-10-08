@@ -538,7 +538,7 @@ class SCAN(Solver):
             images.append(transforms.ToTensor()(board))
 
         images = torch.stack(images, dim=0)
-        self.vis.images(images, env=self.env_name+'_sym2img',
+        self.vis.images(images, env=self.env_name+'_traverse',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=1)
 
 
@@ -631,4 +631,3 @@ def random_occluding(images, size, cuda_or_not=True):
     masks = cuda(masks, cuda_or_not)
     occluded.masked_fill_(masks, 0)
     return occluded
-
