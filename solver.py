@@ -498,7 +498,7 @@ def reconstruction_loss(X, Y, distribution):
     assert batch_size != 0
 
     if distribution == 'bernoulli':
-        recon_loss = -(X * torch.log(Y)) / batch_size
+        recon_loss = -(X * torch.log(Y)).sum() / batch_size
     elif distribution == 'gaussian':
         recon_loss = ((X - Y) ** 2).sum() / batch_size
     else:
