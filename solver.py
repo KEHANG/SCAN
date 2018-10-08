@@ -463,6 +463,14 @@ class SCAN(Solver):
         n_dsets = self.data_loader.__len__()
         toimage = transforms.ToPILImage('RGB')
         interpolation = torch.arange(-limit, limit+0.1, inter)
+        output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+        os.makedirs(output_dir, exist_ok=True)
+
+        def save_display(images, name, nrow):
+            images = torch.stack(images, dim=0)
+            self.vis.images(images, env=self.env_name+'_'+name,
+                            opts=dict(title='iter:{}'.format(self.global_iter)), nrow=nrow)
+            save_image(images, os.path.join(output_dir, '{}.jpeg'.format(name), nrow))
 
         # img2sym
         images = []
@@ -492,9 +500,7 @@ class SCAN(Solver):
             drawer.text((225, 10), sym_text, fill='black')
 
             images.append(transforms.ToTensor()(board))
-        images = torch.stack(images, dim=0)
-        self.vis.images(images, env=self.env_name+'_img2sym',
-                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=int(math.sqrt(num_img2sym)))
+        save_display(images, 'img2sym', int(math.sqrt(num_img2sym)))
 
         #sym2img
         images = []
@@ -514,9 +520,7 @@ class SCAN(Solver):
 
             images.append(transforms.ToTensor()(board))
 
-        images = torch.stack(images, dim=0)
-        self.vis.images(images, env=self.env_name+'_sym2img',
-                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=5)
+        save_display(images, 'sym2img', 5)
 
         #traverse
         images = []
@@ -541,19 +545,7 @@ class SCAN(Solver):
 
             images.append(transforms.ToTensor()(board))
 
-        images = torch.stack(images, dim=0)
-        self.vis.images(images, env=self.env_name+'_traverse',
-                        opts=dict(title='iter:{}'.format(self.global_iter)), nrow=1)
-
-        output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
-        os.makedirs(output_dir, exist_ok=True)
-        collection = torch.cat(collection)
-        gifs = collection.view(1, self.nc, len(interpolation), 3, 64, 64).transpose(1, 2)
-        for j, val in enumerate(interpolation):
-            save_image(tensor=gifs[0][j].cpu(),
-                       filename=os.path.join(output_dir, 'traverse_{}.jpg'.format(j)),
-                       nrow=self.nc, pad_value=1)
-        grid2gif(os.path.join(output_dir, '*.jpg'), os.path.join(output_dir, 'traverse.gif'), delay=0)
+        save_display(images, 'traverse', 1)
 
         self.net_mode(train=True)
 
