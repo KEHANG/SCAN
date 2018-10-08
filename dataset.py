@@ -7,6 +7,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets import ImageFolder
 from torchvision import transforms
+from tqdm import tqdm
 
 
 def is_power_of_2(num):
@@ -45,13 +46,17 @@ class CustomMixDataset(Dataset):
         self.keys = list(map(lambda x: x.lstrip(' '), list(filter(isnt_punct, lines.pop(0).split(' ')))))
         self.n_key = len(self.keys)
         attr_tensor = None
+        pbar = tqdm(total=self.len)
         for line in lines:
+            pbar.update(1)
             words = [word for word in line.split(' ')[1:] if word!='' and word!='\n']
             vector = list(map(lambda x: (1 + float(x)) / 2, words))
             vector = np.array(vector)
             vector.resize([1, self.n_key])
             print(vector.shape)
             attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
+        pbar.write('[Data Loading Finished]')
+        pbar.close()
 
         return attr_tensor
 
