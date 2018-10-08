@@ -236,7 +236,13 @@ class SCAN_net(nn.Module):
         return self.encoder(x)
 
     def _decode(self, z):
-        return self.decoder(z)
+        if z.shape[1] == self.z_dim:
+            return self.decoder(z)
+        else:
+            mu = z[:, :self.z_dim]
+            logvar = z[:, self.z_dim:]
+            z = reparametrize(mu, logvar)
+            return self.decoder(z)
 
 def kaiming_init(m):
     if isinstance(m, (nn.Linear, nn.Conv2d)):
