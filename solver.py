@@ -401,11 +401,10 @@ class SCAN(Solver):
             self.n_key = len(keys)
         y_recon, mu_y, logvar_y = self.net(y)
         z_x = self.beta_VAE_net._encode(x)
-        mu_x = z_x[:self.args.beta_VAE_z_dim]
-        logvar_x = z_x[self.args.beta_VAE_z_dim:]
+        mu_x = z_x[:, :self.args.beta_VAE_z_dim]
+        logvar_x = z_x[:, self.args.beta_VAE_z_dim:]
 
         recon_loss = reconstruction_loss(y, y_recon, 'bernoulli')
-        print(mu_x.shape, logvar_x.shape, mu_y.shape, logvar_y.shape)
         kld = kl_divergence(mu_y, logvar_y)
         relv = dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y)
         loss = recon_loss + self.args.beta * kld + self.args.gamma * relv
