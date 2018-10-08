@@ -41,13 +41,13 @@ class CustomMixDataset(Dataset):
         lines = attr_file.readlines()
         self.len = int(lines.pop(0))
         self.keys = list(map(lambda x: x.rstrip(' '), lines.pop(0).split(',')))
+        print(self.keys)
         self.n_key = len(self.keys)
         attr_tensor = None
         for line in lines:
             words = [word for word in line.split(' ')[1:] if word!='' and word!='\n']
             vector = list(map(lambda x: (1 + float(x)) / 2, words))
             vector = np.array(vector)
-            print(vector.shape)
             vector.resize([1, self.n_key])
             attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
 
