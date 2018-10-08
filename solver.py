@@ -389,6 +389,7 @@ class SCAN(Solver):
         self.DAE_net = beta_VAE_solver.DAE_net
 
     def training_process(self, data):
+        print(data)
         [x, y, keys] = data
         if self.keys is None:
             self.keys = keys
