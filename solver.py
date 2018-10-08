@@ -431,7 +431,7 @@ class SCAN(Solver):
     def load_win_states(self, win_states):
         self.win_recon = win_states['recon']
         self.win_kld = win_states['kld']
-        self.win_relv = win_states['relvs']
+        self.win_relv = win_states['relv']
         self.win_var = win_states['var']
         self.win_mu = win_states['mu']
 
