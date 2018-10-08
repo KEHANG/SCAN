@@ -467,7 +467,7 @@ class SCAN(Solver):
         for i in range(num_img2sym):
             i_rand = random.randint(0, n_dsets)
             [image, attr, _] = self.data_loader.dataset.__getitem__(i_rand)
-            y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image))).cpu()
+            y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu()
             image = toimage(image)
 
             board = Image.new('RGBA', (300, 100), 'white')
