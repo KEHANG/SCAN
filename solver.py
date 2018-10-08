@@ -469,6 +469,7 @@ class SCAN(Solver):
             image = self.tensor(image).unsqueeze(0)
             y_x = self.net._decode(self.beta_VAE_net._encode(image)).squeeze(0).data
             image = transforms.ToPILImage(image.data)
+            image.resize((self.args.image_size, self.args.image_size))
 
             board = Image.new('RGBA', (300, 100), 'white')
             board.paste(image, (18, 30))
@@ -495,8 +496,9 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_z = np.random.rand(size=[num_sym2img, self.z_dim])
-            random_z[i] = 1
+            random_z = np.zeros([num_sym2img, self.z_dim])
+            random_z[:, i] = 1
+            image_subset = self.beta_VAE_net._decode(random_z)
 
         self.net_mode(train=True)
 
