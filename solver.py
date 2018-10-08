@@ -473,7 +473,7 @@ class SCAN(Solver):
             images = torch.stack(images, dim=0)
             self.vis.images(images, env=self.env_name+'_'+name,
                             opts=dict(title='iter:{}'.format(self.global_iter)), nrow=nrow)
-            save_image(images, os.path.join(output_dir, '{}.jpeg'.format(name), nrow))
+            save_image(images, os.path.join(output_dir, '{}.jpeg'.format(name)), nrow)
 
         # img2sym
         images = []
