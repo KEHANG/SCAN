@@ -15,7 +15,7 @@ torch.backends.cudnn.benchmark = True
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--SCAN', action='store_true', help='whether to train a SCAN model or the original beta-VAE model')
-parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training, which has 3 stages: {DAE, beta_VAE, SCAN}')
+parser.add_argument('--phase', default='DAE', type=str, help='the stage of the training, which has 4 stages: {DAE, beta_VAE, SCAN, operator}')
 
 parser.add_argument('--image_size', default=64, type=int, help='image size. now only (64,64) is supported')
 parser.add_argument('--num_workers', default=16, type=int, help='dataloader num_workers')
