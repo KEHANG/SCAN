@@ -25,17 +25,18 @@ class Solver(ABC):
         self.global_iter = 0
         self.args = args
 
-        if args.dataset.lower() == 'dsprites':
-            self.nc = 1
-            self.decoder_dist = 'bernoulli'
-        elif args.dataset.lower() == '3dchairs':
-            self.nc = 3
-            self.decoder_dist = 'gaussian'
-        elif args.dataset.lower() == 'celeba':
-            self.nc = 3
-            self.decoder_dist = 'gaussian'
-        else:
-            raise NotImplementedError
+        if not self.nc is None:
+            if args.dataset.lower() == 'dsprites':
+                self.nc = 1
+                self.decoder_dist = 'bernoulli'
+            elif args.dataset.lower() == '3dchairs':
+                self.nc = 3
+                self.decoder_dist = 'gaussian'
+            elif args.dataset.lower() == 'celeba':
+                self.nc = 3
+                self.decoder_dist = 'gaussian'
+            else:
+                raise NotImplementedError
 
         self.output_dir = os.path.join(args.root_dir, self.env_name, args.output_dir)
         self.ckpt_dir = os.path.join(args.root_dir, self.env_name, args.ckpt_dir)
@@ -152,7 +153,7 @@ class Solver(ABC):
                 env_name = self.env_name + '_' + key
                 self.vis.delete_env(env_name)
     def tensor(self, tensor, requires_grad=True):
-        return cuda(torch.tensor(tensor, dtype=torch.float32, requires_grad=requires_grad), self.args.cuda)
+        return cuda(torch.tensor(tensor, requires_grad=requires_grad), self.args.cuda)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
@@ -164,6 +165,7 @@ class super_beta_VAE(Solver):
         else:
             raise NotImplementedError('only support model H or B')
         self.z_dim = args.beta_VAE_z_dim
+        self.nc = None
         self.env_name = args.beta_VAE_env_name
         self.win_recon = None
         self.win_kld = None
@@ -337,6 +339,7 @@ class DAE(Solver):
         self.win_recon = None
         self.model = DAE_net
         self.z_dim = args.DAE_z_dim
+        self.nc = None
         self.env_name = args.DAE_env_name
 
         super(DAE, self).__init__(args)
@@ -374,6 +377,7 @@ class SCAN(Solver):
     def __init__(self, args):
         self.model = SCAN_net
         self.z_dim = args.SCAN_z_dim
+        self.nc = 40
         self.env_name = args.SCAN_env_name
         self.win_recon = None
         self.win_kld = None
@@ -393,6 +397,7 @@ class SCAN(Solver):
         [x, y, keys] = data
         x = self.tensor(x)
         y = self.tensor(y)
+        print(y.shape)
         if self.keys is None:
             self.keys = keys
             self.n_key = len(keys)
