@@ -480,7 +480,7 @@ class SCAN(Solver):
             for i_key in range(self.n_key):
                 if attr[i_key] >= 1.:
                     attr_text = attr_text + self.keys[i_key] + '\n'
-            drawer.text((100, 10), attr_text, fill='black')
+            drawer.text((90, 10), attr_text, fill='black')
 
             y_x = y_x.tolist()
             sorted_y = y_x.copy()
@@ -489,7 +489,7 @@ class SCAN(Solver):
             for i_key in range(10):
                 index = y_x.index(sorted_y[i_key])
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
-            drawer.text((250, 10), sym_text, fill='black')
+            drawer.text((225, 10), sym_text, fill='black')
 
             images.append(transforms.ToTensor()(board))
         images = torch.stack(images, dim=0)
