@@ -527,7 +527,7 @@ class SCAN(Solver):
                 return vector
             random_ys = self.tensor(np.concatenate([set_value(j) for j in interpolation], axis=0))
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
-            image_row = toimage(make_grid(image_subset, nrow=1))
+            image_row = toimage(make_grid(image_subset, nrow=n_traverse))
             image_row.resize((n_traverse * self.args.image_size, self.args.image_size))
 
             board = Image.new('RGB', (n_traverse * self.args.image_size, self.args.image_size + 15), 'white')
