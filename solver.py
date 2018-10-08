@@ -10,6 +10,7 @@ import visdom
 import random
 from PIL import Image, ImageDraw
 import math
+import numpy as np
 
 import torch
 import torch.optim as optim
@@ -470,7 +471,7 @@ class SCAN(Solver):
             image = transforms.ToPILImage(image.data)
 
             board = Image.new('RGBA', (300, 100), 'white')
-            board.paste(image.data, (18, 30))
+            board.paste(image, (18, 30))
 
             drawer = ImageDraw.Draw(board)
             attr_text = ''
@@ -492,6 +493,10 @@ class SCAN(Solver):
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=n_row)
 
         #sym2img
+        images = []
+        for i in range(self.n_key):
+            random_z = np.random.rand(size=[num_sym2img, self.z_dim])
+            random_z[i] = 1
 
         self.net_mode(train=True)
 
