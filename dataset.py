@@ -50,6 +50,7 @@ class CustomMixDataset(Dataset):
             vector = list(map(lambda x: (1 + float(x)) / 2, words))
             vector = np.array(vector)
             vector.resize([1, self.n_key])
+            print(vector.shape)
             attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
 
         return attr_tensor
