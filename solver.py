@@ -155,7 +155,7 @@ class Solver(ABC):
                 env_name = self.env_name + '_' + key
                 self.vis.delete_env(env_name)
     def tensor(self, tensor, requires_grad=True):
-        return cuda(torch.tensor(tensor, requires_grad=requires_grad), self.args.cuda)
+        return cuda(torch.tensor(tensor, dtype=torch.float32, requires_grad=requires_grad), self.args.cuda)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
