@@ -59,7 +59,6 @@ parser.add_argument('--ckpt_name', default='last', type=str, help='name of the p
 args = parser.parse_args()
 
 args.dset_dir = os.path.join(args.root_dir, args.dset_dir)
-args.output_dir = os.path.join(args.root_dir, args.output_dir)
 
 args.cuda = args.cuda and torch.cuda.is_available()
 

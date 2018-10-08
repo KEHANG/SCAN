@@ -113,7 +113,7 @@ class Solver(ABC):
         images = torch.stack([x, x_recon], dim=0).cpu()
         self.vis.images(images, env=self.env_name+'_reconstruction',
                         opts=dict(title=str(self.global_iter)), nrow=10)
-        output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+        output_dir = os.path.join(self.output_dir, str(self.global_iter))
         os.makedirs(output_dir, exist_ok=True)
         save_image(images, os.path.join(output_dir, 'reconstruction.jpg'), 10)
         self.net_mode(train=True)
@@ -288,7 +288,7 @@ class super_beta_VAE(Solver):
                             opts=dict(title=title), nrow=len(interpolation))
 
         if self.args.save_output:
-            output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+            output_dir = os.path.join(self.output_dir, str(self.global_iter))
             os.makedirs(output_dir, exist_ok=True)
             gifs = torch.cat(gifs)
             gifs = gifs.view(len(Z), self.z_dim, len(interpolation), self.nc, 64, 64).transpose(1, 2)
@@ -466,7 +466,7 @@ class SCAN(Solver):
         n_dsets = self.data_loader.__len__()
         toimage = transforms.ToPILImage('RGB')
         interpolation = torch.arange(-limit, limit+0.1, inter)
-        output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+        output_dir = os.path.join(self.output_dir, str(self.global_iter))
         os.makedirs(output_dir, exist_ok=True)
 
         def save_display(images, name, nrow):
