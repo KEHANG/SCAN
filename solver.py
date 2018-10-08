@@ -392,7 +392,7 @@ class SCAN(Solver):
     def training_process(self, data):
         [x, y, keys] = data
         x = self.tensor(x)
-        y = self.tensor(y, requires_grad=False)
+        y = self.tensor(y)
         if self.keys is None:
             self.keys = keys
             self.n_key = len(keys)
@@ -471,7 +471,7 @@ class SCAN(Solver):
             drawer = ImageDraw.Draw(board)
             attr_text = ''
             for i_key in range(self.n_key):
-                if attr[i_key] == 1:
+                if attr[i_key] >= 1.:
                     attr_text = attr_text + ' ' + self.keys[i_key]
             drawer.text((0, 5), attr_text)
 
