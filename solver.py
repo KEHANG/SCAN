@@ -490,6 +490,9 @@ class SCAN(Solver):
         self.vis.images(images, env=self.env_name+'_img2sym',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=n_row)
 
+        #sym2img
+
+
         self.net_mode(train=True)
 
 
