@@ -489,7 +489,7 @@ class SCAN(Solver):
                 sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
             drawer.text((100, 20), sym_text)
 
-            images.append(transforms.ToTensor(board))
+            images.append(transforms.ToTensor()(board))
         self.vis.images(images, env=self.env_name+'_img2sym',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=int(math.sqrt(num_img2sym)))
 
@@ -504,6 +504,9 @@ class SCAN(Solver):
             images.append(image_subset)
         self.vis.images(images, env=self.env_name+'_sym2img',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=8)
+
+        #traverse
+        images = []
 
         self.net_mode(train=True)
 
