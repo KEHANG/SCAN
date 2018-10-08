@@ -45,7 +45,7 @@ class CustomMixDataset(Dataset):
             return not w in ['', ' ', ',', '\n']
         self.keys = list(map(lambda x: x.lstrip(' '), list(filter(isnt_punct, lines.pop(0).split(' ')))))
         self.n_key = len(self.keys)
-        attr_tensor = None
+        attr_tensor = []
         pbar = tqdm(total=self.len)
         pbar.set_description('Loading Dataset')
         for line in lines:
@@ -54,7 +54,8 @@ class CustomMixDataset(Dataset):
             vector = list(map(lambda x: (1 + float(x)) / 2, words))
             vector = np.array(vector)
             vector.resize([1, self.n_key])
-            attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
+            attr_tensor.append(vector)
+        attr_tensor = np.concatenate(attr_tensor)
         pbar.write('[Dataset Loading Finished]')
         pbar.close()
 
