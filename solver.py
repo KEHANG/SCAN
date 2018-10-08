@@ -113,6 +113,9 @@ class Solver(ABC):
         images = torch.stack([x, x_recon], dim=0).cpu()
         self.vis.images(images, env=self.env_name+'_reconstruction',
                         opts=dict(title=str(self.global_iter)), nrow=10)
+        output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+        os.makedirs(output_dir, exist_ok=True)
+        save_image(images, os.path.join(output_dir, 'reconstruction.jpg'), 10)
         self.net_mode(train=True)
 
     def update_win(self, Y, win, legend, title):
