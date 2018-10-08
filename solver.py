@@ -499,7 +499,7 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_ys = np.zeros(shape=[num_sym2img, self.nc])
+            random_ys = np.random.normal(size=[num_sym2img, self.nc])
             random_ys[:, i] = 1
             random_ys = self.tensor(random_ys)
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
@@ -522,7 +522,7 @@ class SCAN(Solver):
         images = []
         for i in range(self.n_key):
             n_traverse = len(list(interpolation))
-            random_y = np.zeros(shape=[1, self.nc])
+            random_y = np.random.normal(size=[1, self.nc])
             def set_value(v):
                 vector = random_y.copy()
                 vector[0, i] = v
