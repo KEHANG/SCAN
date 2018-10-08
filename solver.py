@@ -151,8 +151,8 @@ class Solver(ABC):
             for key in keys:
                 env_name = self.env_name + '_' + key
                 self.vis.delete_env(env_name)
-    def tensor(self, tensor):
-        return torch.tensor(cuda(tensor, self.args.cuda), requires_grad=True)
+    def tensor(self, tensor, requires_grad=True):
+        return torch.tensor(cuda(tensor, self.args.cuda), requires_grad=requires_grad)
 
 #---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
@@ -392,7 +392,7 @@ class SCAN(Solver):
     def training_process(self, data):
         [x, y, keys] = data
         x = self.tensor(x)
-        y = self.tensor(y)
+        y = self.tensor(y, requires_grad=False)
         if self.keys is None:
             self.keys = keys
             self.n_key = len(keys)
