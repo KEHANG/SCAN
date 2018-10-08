@@ -37,7 +37,7 @@ class CustomMixDataset(Dataset):
         return self.len
 
     def get_tensor(self, root):
-        attr_file = open(os.path.join(root, 'CelebA/Anno/list_attr_celeba.txt'), 'r')
+        attr_file = open(os.path.join(root, 'Anno/list_attr_celeba.txt'), 'r')
         lines = attr_file.readlines()
         self.len = int(lines.pop())
         self.keys = list(map(lambda x: x.rstrip(' '), lines.pop().split(',')))
