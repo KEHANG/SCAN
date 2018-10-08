@@ -405,9 +405,9 @@ class SCAN(Solver):
         logvar_x = z_x[self.args.beta_VAE_z_dim:]
 
         recon_loss = reconstruction_loss(y, y_recon, 'bernoulli')
+        print(mu_x.shape, logvar_x.shape, mu_y.shape, logvar_y.shape)
         kld = kl_divergence(mu_y, logvar_y)
         relv = dual_kl_divergence(mu_x, logvar_x, mu_y, logvar_y)
-        print(mu_x.shape, logvar_x.shape, mu_y.shape, logvar_y.shape)
         loss = recon_loss + self.args.beta * kld + self.args.gamma * relv
 
         if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
