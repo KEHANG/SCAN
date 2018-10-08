@@ -49,6 +49,7 @@ class CustomMixDataset(Dataset):
             vector = np.array(vector).resize([1, self.n_key])
             attr_tensor = vector if attr_tensor is None else np.concatenate([attr_tensor, vector])
 
+        print(attr_tensor)
         return attr_tensor
 
 class CustomTensorDataset(Dataset):
