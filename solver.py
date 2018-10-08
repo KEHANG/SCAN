@@ -520,6 +520,7 @@ class SCAN(Solver):
 
         #traverse
         images = []
+        collection = []
         for i in range(self.n_key):
             n_traverse = len(list(interpolation))
             random_y = np.random.normal(loc=0.5, size=[1, self.nc])
@@ -529,6 +530,7 @@ class SCAN(Solver):
                 return vector
             random_ys = self.tensor(np.concatenate([set_value(j) for j in interpolation], axis=0))
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
+            collection.append(image_subset)
             image_row = toimage(make_grid(image_subset, nrow=n_traverse))
             image_row.resize((n_traverse * self.args.image_size, self.args.image_size))
 
@@ -542,6 +544,16 @@ class SCAN(Solver):
         images = torch.stack(images, dim=0)
         self.vis.images(images, env=self.env_name+'_traverse',
                         opts=dict(title='iter:{}'.format(self.global_iter)), nrow=1)
+
+        output_dir = os.path.join(self.args.output_dir, str(self.global_iter))
+        os.makedirs(output_dir, exist_ok=True)
+        collection = torch.cat(collection)
+        gifs = collection.view(1, self.nc, len(interpolation), 3, 64, 64).transpose(1, 2)
+        for j, val in enumerate(interpolation):
+            save_image(tensor=gifs[0][j].cpu(),
+                       filename=os.path.join(output_dir, 'traverse_{}.jpg'.format(j)),
+                       nrow=self.nc, pad_value=1)
+        grid2gif(os.path.join(output_dir, '*.jpg'), os.path.join(output_dir, 'traverse.gif'), delay=0)
 
         self.net_mode(train=True)
 
