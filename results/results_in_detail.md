@@ -27,4 +27,11 @@ Unfortunately, the convergence of SCAN is not conspicuous in plots of the losses
 ## DAE Results
 
 #### reconstruction
+![reconstruction](DAE/reconstruction.jpg)
 
+#### reconstruction loss
+![recon](DAE/recon.png)
+
+## Beta-VAE Results
+
+#### reconstruction
