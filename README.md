@@ -1,5 +1,5 @@
 # SCAN
-Pytorch reproduction of the paper:
+This is a pytorch reproduction of the paper:
 [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
 
 This implementation is based on the [implementation][Github Repo] of β-VAE.
@@ -35,7 +35,7 @@ The original β-VAE models are still supported, and examples of result reproduci
 
 ### Selected Results
 
-To view results in full detail, please refer to [this file](results/Results_in_detail.md) of `results/Results_in_detail.md`.
+To view results in full detail, please go to [this file](results/Results_in_detail.md) of `results/Results_in_detail.md`.
 
 #### reconstruction
 
@@ -68,6 +68,11 @@ In the code, I applied only the encoder net.
 2. Under equation(4) of the paper, the authors mentioned "to up-weight the forward KL term relative to the other terms in the cost function (e.g. λ = 1, β = 10)", which seems to be self-contradicting.
 In the code, I adopted the setting in Appendix A.1, which is λ = 10, β = 1
 
+Up to now, I haven't implemented the recombination operator part.
+This is partly because of lack of time, and partly because I mainly reproduced the CelebA experiment, in which the paper didn't show the results of the recombination part, either.
+
+I will try to implement this operator later, if necessary and time permitting.
+However, I guess the preformance will not be satisfying, because the results of SCAN net on the CelebA dataset is already non-significant (which I guess is due to either the complexity of face data or the imperfectness of my code).
 
 ### Reference
 1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
