@@ -534,7 +534,7 @@ class SCAN(Solver):
         collection = []
         for i in range(self.n_key):
             n_traverse = len(list(interpolation))
-            random_y = np.random.normal(loc=0.5, size=[1, self.nc])
+            random_y = np.random.randint(2, size=[1, self.nc])
             def set_value(v):
                 vector = random_y.copy()
                 vector[0, i] = v
