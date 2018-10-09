@@ -36,7 +36,7 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 
 ### Selected Results
 
-For results in full detail, please refer to `results/Results_in_detail.md` [file](results/Results_in_detail.md).
+For results in full detail, please refer to the [file](results/Results_in_detail.md) of `results/Results_in_detail.md`.
 
 #### reconstruction
 
