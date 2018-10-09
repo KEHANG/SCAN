@@ -38,19 +38,19 @@ The original β-VAE models are still supported, and examples of result reproduci
 To view results in full detail, please go to [this file](results/Results_in_detail.md) of `results/Results_in_detail.md`.
 
 #### reconstruction
-
+Left part: original images. Right part: reconstructed images based on description.
 ![reconstruction](results/SCAN/reconstruction.jpg)
 
 #### img2sym
-
+In every card, columns shown from left to right are: 1. original image, 2. labels, 3. top predicted labels and probabilities
 ![img2sym](results/SCAN/img2sym.jpeg)
 
 #### sym2img
-
+Attributes other than the appointed ones are randomly sampled within {0, 1}.
 ![sym2img](results/SCAN/selected_sym2img.jpeg)
 
 #### traversal
-
+Traversal range is -3 ~ 3
 ![traversal](results/SCAN/selected_traversal.jpeg)
 
 ### Note
