@@ -37,8 +37,6 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 
 #### reconstruction
 
-Left part: original images. Right part: reconstructed images.
-
 ![reconstruction](results/SCAN/reconstruction.jpg)
 
 #### img2sym
@@ -53,7 +51,7 @@ Left part: original images. Right part: reconstructed images.
 
 ![traverse](results/SCAN/selected_traverse.jpeg)
 
-The convergence of SCAN is not conspicuous in plots of the losses, compared to the more obvious convergence of DAE and beta-VAE models.
+Unfortunately, the convergence of SCAN is not conspicuous in plots of the losses, compared to the more obvious convergence of DAE and beta-VAE models.
 
 #### reconstruction loss
 
