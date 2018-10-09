@@ -38,7 +38,7 @@ Unfortunately, the convergence of SCAN is not conspicuous in plots of the losses
 ![reconstruction](beta-VAE/reconstruction.jpg)
 
 #### traversal
-![traversal](beta-VAE/traversal.jpeg)
+![traversal](beta-VAE/traversal.jpg)
 
 #### reconstruction loss
 ![recon](beta-VAE/recon.png)

@@ -50,9 +50,9 @@ For results in full detail, please refer to `results/Results_in_detail.md` [file
 
 ![sym2img](results/SCAN/selected_sym2img.jpeg)
 
-#### traverse
+#### traversal
 
-![traverse](results/SCAN/selected_traverse.jpeg)
+![traversal](results/SCAN/selected_traversal.jpeg)
 
 ### Acknowledgement:
 
