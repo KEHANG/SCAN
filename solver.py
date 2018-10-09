@@ -484,8 +484,6 @@ class SCAN(Solver):
                 self.keys = keys
                 self.n_key = len(self.keys)
             y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu().squeeze(0)
-            print(attr)
-            print(y_x)
             image = toimage(image)
 
             board = Image.new('RGB', (400, 200), 'white')
@@ -503,8 +501,9 @@ class SCAN(Solver):
             sorted_y.sort(reverse=True)
             sym_text = ''
             for i_key in range(10):
-                index = y_x.index(sorted_y[i_key])
-                sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
+                if sorted_y[i_key] > 0.4:
+                    index = y_x.index(sorted_y[i_key])
+                    sym_text = sym_text + '[{0}: {1:.3f}]\n'.format(self.keys[index], y_x[index])
             drawer.text((225, 10), sym_text, fill='black')
 
             images.append(transforms.ToTensor()(board))
