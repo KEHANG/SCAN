@@ -24,7 +24,7 @@ Dataset preparation is the same as [here](https://github.com/1Konny/FactorVAE)
 
 To initialize visdom:
 
-    vidsom -port 6059
+    visdom -port 6059
 
 To reproduce the results of SCAN, please run the three `.sh` files one by one:
 
