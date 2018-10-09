@@ -45,7 +45,7 @@ parser.add_argument('--vis_port', default=6059, type=str, help='visdom port numb
 parser.add_argument('--gather_step', default=1000, type=int, help='numer of iterations after which data is gathered for visdom')
 parser.add_argument('--display_save_step', default=10000, type=int, help='number of iterations after which to display data and save checkpoint')
 
-parser.add_argument('--root_dir', default='/data/SCAN', type=str, help='root directory')
+parser.add_argument('--root_dir', default='/data/hc/SCAN', type=str, help='root directory')
 parser.add_argument('--DAE_env_name', default='DAE', type=str, help='visdom env name')
 parser.add_argument('--beta_VAE_env_name', default='beta_VAE', type=str, help='visdom env name')
 parser.add_argument('--SCAN_env_name', default='SCAN', type=str, help='visdom env name')
