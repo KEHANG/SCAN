@@ -58,14 +58,14 @@ For results in full detail, please refer to the [file](results/Results_in_detail
 
 ### Acknowledgement:
 
-I've referred to [this issue][this issue], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
+I've referred to [this issue][], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
 
 ### Notice
 
 There is some sort of self-contradiction in the paper.
 
 1. The reconstruction loss of β-VAE is said to be the square difference of only the DAE encoder net in its Section 4, but in Appendix A.1 the loss is said to be between "the pixel space of DAE reconstructions".
-This is mentioned in [issue][this isse] above, too.
+This is mentioned in the [issue][this issue] above, too.
 In the code, I applied only the encoder net.
 
 2. Under equation(4) of the paper, the authors mentioned "to up-weight the forward KL term relative to the other terms in the cost function (e.g. λ = 1, β = 10)", which seems to be self-contradicting.
