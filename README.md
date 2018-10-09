@@ -7,8 +7,8 @@ The β-VAE model used here, however, is modified to utilize another DAE as recon
 
 ### Dependencies
 ```
-python 3.6.4
-pytorch 0.3.1.post2
+python 3.6
+pytorch 0.4
 visdom
 numpy
 ```
