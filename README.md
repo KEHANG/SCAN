@@ -53,26 +53,26 @@ To view results in full detail, please go to [this file](results/Results_in_deta
 
 ![traversal](results/SCAN/selected_traversal.jpeg)
 
-### Acknowledgement:
-
-I've referred to [this issue][], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
-
-### Notice
+### Note
 
 There is some sort of self-contradiction in the paper.
 
 1. The reconstruction loss of β-VAE is said to be the square difference of only the DAE encoder net in its Section 4, but in Appendix A.1 the loss is said to be between "the pixel space of DAE reconstructions".
 This is mentioned in the [issue][this issue] above, too.
-In the code, I applied only the encoder net.
+In the code, I applied only the DAE encoder net.
 
 2. Under equation(4) of the paper, the authors mentioned "to up-weight the forward KL term relative to the other terms in the cost function (e.g. λ = 1, β = 10)", which seems to be self-contradicting.
-In the code, I adopted the setting in Appendix A.1, which is λ = 10, β = 1
+In the code, I adopted the setting in Appendix A.1, which is λ = 10, β = 1.
 
 Up to now, I haven't implemented the recombination operator part.
 This is partly because of lack of time, and partly because I mainly reproduced the CelebA experiment, in which the paper didn't show the results of the recombination part, either.
 
 I will try to implement this operator later, if necessary and time permitting.
 However, I guess the preformance will not be satisfying, because the results of SCAN net on the CelebA dataset is already non-significant (which I guess is due to either the complexity of face data or the imperfectness of my code).
+
+### Acknowledgement:
+
+I've referred to [this issue][], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
 
 ### Reference
 1. [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
