@@ -19,17 +19,13 @@ numpy
 ### Usage
 To initialize visdom:
 
-    ```
     vidsom -port 6059
-    ```
 
 To reproduce the results of SCAN, you can sequentially run the three `.sh` files:
 
-    ```
     sh scripts/DAE.sh
     sh scripts/beta_VAE.sh
     sh scripts/SCAN.sh
-    ```
 
 By default, the working environment setting is `/data/hc/SCAN/` in `main.py` `--root_dir`, which should be modified for your convenience.
 This is directory suppose to contain the dataset in `root_dir/dataset/`, and is where checkpoint files and output files will be saved.
