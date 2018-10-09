@@ -2,6 +2,8 @@
 Pytorch reproduction of the paper:
 [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]
 
+This implementation is based on the [implementation][Github Repo] of beta-VAE. The beta-VAE 
+
 ### Dependencies
 ```
 python 3.6.4
