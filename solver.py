@@ -552,7 +552,7 @@ class SCAN(Solver):
 
             images.append(transforms.ToTensor()(board))
 
-        save_display(images, 'traverse', 1)
+        save_display(images, 'traversal', 1)
 
         self.net_mode(train=True)
 

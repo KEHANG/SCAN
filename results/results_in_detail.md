@@ -9,8 +9,8 @@
 #### sym2img
 ![sym2img](SCAN/sym2img.jpeg)
 
-#### traverse
-![traverse](SCAN/traverse.jpeg)
+#### traversal
+![traversal](SCAN/traversal.jpeg)
 
 Unfortunately, the convergence of SCAN is not conspicuous in plots of the losses, compared to the more obvious convergence of DAE and beta-VAE models.
 
@@ -35,3 +35,16 @@ Unfortunately, the convergence of SCAN is not conspicuous in plots of the losses
 ## Beta-VAE Results
 
 #### reconstruction
+![reconstruction](beta-VAE/reconstruction.jpg)
+
+#### traversal
+![traversal](beta-VAE/traversal.jpeg)
+
+#### reconstruction loss
+![recon](beta-VAE/recon.png)
+
+#### KL divergence
+![kld](beta-VAE/kld.png)
+
+#### variances
+![var](beta-VAE/var.png)
