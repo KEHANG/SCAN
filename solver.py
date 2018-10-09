@@ -21,7 +21,7 @@ from utils import cuda, grid2gif
 from model import BetaVAE_H_net, BetaVAE_B_net, DAE_net, SCAN_net
 from dataset import return_data
 
-#---------------------------------NEW CLASS-------------------------------------#
+#---------------------------------TEMPLATES-------------------------------------#
 class Solver(ABC):
     def __init__(self, args, require_attr=False, nc=None):
         self.global_iter = 0
@@ -162,7 +162,6 @@ class Solver(ABC):
     def tensor(self, tensor, requires_grad=True):
         return cuda(torch.tensor(tensor, dtype=torch.float32, requires_grad=requires_grad), self.args.cuda)
 
-#---------------------------------NEW CLASS-------------------------------------#
 class super_beta_VAE(Solver):
     def __init__(self, args):
         if args.model == 'H':
@@ -315,7 +314,7 @@ class super_beta_VAE(Solver):
         self.win_mu = win_states['mu']
 
 
-#---------------------------------NEW CLASS-------------------------------------#
+#---------------------------------SOLVERS-------------------------------------#
 class ori_beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(ori_beta_VAE, self).__init__(args)
@@ -325,7 +324,6 @@ class ori_beta_VAE(super_beta_VAE):
     def visual(self, x):
         return x
 
-#---------------------------------NEW CLASS-------------------------------------#
 class beta_VAE(super_beta_VAE):
     def __init__(self, args):
         super(beta_VAE, self).__init__(args)
@@ -339,7 +337,6 @@ class beta_VAE(super_beta_VAE):
     def visual(self, x):
         return self.DAE_net(x)
 
-#---------------------------------NEW CLASS-------------------------------------#
 class DAE(Solver):
     def __init__(self, args):
         self.win_recon = None
@@ -377,7 +374,6 @@ class DAE(Solver):
         self.win_recon = self.update_win(recon_losses, self.win_recon, [''], 'reconstruction loss')
         self.net_mode(train=True)
 
-#---------------------------------NEW CLASS-------------------------------------#
 class SCAN(Solver):
     def __init__(self, args):
         self.model = SCAN_net
