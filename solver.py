@@ -480,6 +480,7 @@ class SCAN(Solver):
         for i in range(num_img2sym):
             i_rand = random.randint(0, n_dsets)
             [image, attr, keys] = self.data_loader.dataset.__getitem__(i_rand)
+            print(attr)
             if self.keys is None:
                 self.keys = keys
                 self.n_key = len(self.keys)
