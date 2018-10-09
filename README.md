@@ -58,7 +58,7 @@ For results in full detail, please refer to the [file](results/Results_in_detail
 
 ### Acknowledgement:
 
-I've referred to [this issue][], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
+I've referred to [this issue][this issue], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
 
 ### Notice
 
