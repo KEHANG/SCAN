@@ -30,7 +30,7 @@ To reproduce the results of SCAN, you can sequentially run the three `.sh` files
 By default, the working environment setting is `/data/SCAN/` in `main.py` `--root_dir`, which is overriden and set as `/data/hc/SCAN` by the three `.sh` files above.
 This is directory suppose to contain the dataset `root_dir/dataset/`, and is where checkpoint files and output files will be saved.
 The original beta-VAE models are still supported, and examples of result reproducing commands can be found in `scripts/original-beta_VAE/`
-To view the original beta-VAE model, you can also refer to the parent repo [Github Repo][]
+To view the original beta-VAE model, you can also refer to the parent repo [Github Repo][]<br>
 
 ###Results
 
