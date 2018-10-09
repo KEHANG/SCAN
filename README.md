@@ -35,22 +35,34 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 
 ### Results
 
-reconstruction
+#### reconstruction
+
 ![reconstruction](results/SCAN/selected_traverse.jpeg)
-img2sym
+
+#### img2sym
+
 ![img2sym](results/SCAN/img2sym.jpeg)
-sym2img
+
+#### sym2img
+
 ![sym2img](results/SCAN/sym2img.jpeg)
-traverse
+
+#### traverse
+
 ![traverse](results/SCAN/selected_traverse.jpeg)
 
 The convergence of SCAN is not conspicuous in plots of the losses, compared to the more obvious convergence of DAE and beta-VAE models.
 
-reconstruction loss
+#### reconstruction loss
+
 ![recon](results/SCAN/recon.png)
-forward KL term
+
+#### forward KL term
+
 ![kld](results/SCAN/kld.png)
-KL divergence
+
+#### KL divergence
+
 ![relv](result/SCAN/relv.png)
 
 Pretrained DAE and beta-VAE results can be found in `pretrained_results.md`.
