@@ -480,11 +480,12 @@ class SCAN(Solver):
         for i in range(num_img2sym):
             i_rand = random.randint(0, n_dsets)
             [image, attr, keys] = self.data_loader.dataset.__getitem__(i_rand)
-            print(attr)
             if self.keys is None:
                 self.keys = keys
                 self.n_key = len(self.keys)
             y_x = self.net._decode(self.beta_VAE_net._encode(self.tensor(image.unsqueeze(0)))).cpu().squeeze(0)
+            print(attr)
+            print(y_x)
             image = toimage(image)
 
             board = Image.new('RGB', (400, 200), 'white')
