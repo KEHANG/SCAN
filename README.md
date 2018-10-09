@@ -31,7 +31,7 @@ To reproduce the results of SCAN, you can sequentially run the three `.sh` files
     sh scripts/SCAN.sh
     ```
 
-By default, the working environment setting is `/data/SCAN/` in `main.py` `--root_dir`.
+By default, the working environment setting is `/data/hc/SCAN/` in `main.py` `--root_dir`, which should be modified for your convenience.
 This is directory suppose to contain the dataset in `root_dir/dataset/`, and is where checkpoint files and output files will be saved.
 The original β-VAE models are still supported, and examples of result reproducing commands can be found in `scripts/original-beta_VAE/`
 
@@ -58,7 +58,7 @@ For results in full detail, please refer to the [file](results/Results_in_detail
 
 ### Acknowledgement:
 
-I've referred to [this issue](https://github.com/miyosuda/scan/issues/1), and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
+I've referred to [this issue][], and adopted its solution which is to use the DAE output rather than to improve the visuality of β-VAE.
 
 ### Notice
 
@@ -79,3 +79,4 @@ In the code, I adopted the setting in Appendix A.1, which is λ = 10, β = 1
 [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018]: https://arxiv.org/abs/1707.03389
 [Github Repo]: https://github.com/1Konny/Beta-VAE 
 [same with here]: https://github.com/1Konny/FactorVAE 
+[this issue]: https://github.com/miyosuda/scan/issues/1
