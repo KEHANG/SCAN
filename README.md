@@ -37,7 +37,7 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 
 #### reconstruction
 
-![reconstruction](results/SCAN/selected_traverse.jpeg)
+![reconstruction](results/SCAN/reconstruction.jpg)
 
 #### img2sym
 
@@ -45,7 +45,7 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 
 #### sym2img
 
-![sym2img](results/SCAN/sym2img.jpeg)
+![sym2img](results/SCAN/selected_sym2img.jpeg)
 
 #### traverse
 
