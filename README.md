@@ -4,6 +4,7 @@ This is a pytorch reproduction of the paper [SCAN: Learning Hierarchical Composi
 This implementation is based on the [implementation][beta-VAE] of β-VAE.
 The β-VAE model used here, however, is modified to utilize another DAE as reconstruction loss provider according to the paper.
 
+
 ## Usage
 
 ### Dependencies
@@ -62,6 +63,7 @@ Attributes other than the appointed ones are randomly sampled within {0, 1}. 25 
 Traversal range is -3 ~ 3. 16 of all 40 attributes are selected.
 
 ![traversal](results/SCAN/selected_traversal.jpeg)
+
 
 ## Others
 
