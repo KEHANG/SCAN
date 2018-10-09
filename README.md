@@ -36,7 +36,11 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 ### Results
 
 The convergence of SCAN is not salient in plots of the losses, compared to more obvious convergence of DAE and beta-VAE models.
-[reconstruction loss](results/SCAN/recon.png)
+
+reconstruction loss
+![recon](results/SCAN/recon.png)
+forward KL term
+![kld](results/SCAN/kld.png)
 
 Pretrained DAE and beta-VAE results can be found in `pretrained_results.md`.
 
