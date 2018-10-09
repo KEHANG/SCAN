@@ -7,6 +7,7 @@ Pytorch reproduction of the paper:
 python 3.6.4
 pytorch 0.3.1.post2
 visdom
+numpy
 ```
 
 ### Datasets
@@ -33,7 +34,9 @@ The original beta-VAE models are still supported, and examples of result reprodu
 To view the original beta-VAE model, you can also refer to the parent repo [Github Repo][]
 
 
-### Results
+### Selected Results
+
+For results in full detail, please refer to `results/results_in_detail.md` [file](results/results_in_detail.md).
 
 #### reconstruction
 
@@ -50,22 +53,6 @@ To view the original beta-VAE model, you can also refer to the parent repo [Gith
 #### traverse
 
 ![traverse](results/SCAN/selected_traverse.jpeg)
-
-Unfortunately, the convergence of SCAN is not conspicuous in plots of the losses, compared to the more obvious convergence of DAE and beta-VAE models.
-
-#### reconstruction loss
-
-![recon](results/SCAN/recon.png)
-
-#### forward KL term
-
-![kld](results/SCAN/kld.png)
-
-#### KL divergence
-
-![relv](result/SCAN/relv.png)
-
-Pretrained DAE and beta-VAE results can be found in `pretrained_results.md`.
 
 ### Acknowledgement:
 
