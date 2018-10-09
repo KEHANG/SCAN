@@ -512,7 +512,7 @@ class SCAN(Solver):
         #sym2img
         images = []
         for i in range(self.n_key):
-            random_ys = np.zeros(shape=[num_sym2img, self.nc])
+            random_ys = np.random.normal(loc=0, scale=0.3, size=[num_sym2img, self.nc])
             random_ys[:, i] = 3
             random_ys = self.tensor(random_ys)
             image_subset = self.DAE_net(self.beta_VAE_net._decode(self.net._encode(random_ys))).cpu().data
