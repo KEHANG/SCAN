@@ -60,7 +60,7 @@ Attributes other than the appointed ones are randomly sampled within {0, 1}. 25 
 
 ### traversal
 
-Traversal range is -3 ~ 3.<br> 16 of all 40 attributes are selected.
+Traversal range is -3 ~ 3.    16 of all 40 attributes are selected.
 
 ![traversal](results/SCAN/selected_traversal.jpeg)
 
