@@ -2,7 +2,7 @@
 
 python main.py --dataset celeba\
     --SCAN --phase SCAN\
-    --seed 7 --lr 1e-4 --batch_size 16 --max_iter 3e6 --beta 0.5 --Lambda 20 --display_save_step 10000\
+    --seed 7 --lr 1e-4 --batch_size 16 --max_iter 3e6 --beta 0.1 --Lambda 2 --display_save_step 10000\
     --DAE_env_name DAE --DAE_z_dim 100\
     --beta_VAE_env_name beta_VAE --beta_VAE_z_dim 32\
     --SCAN_env_name SCAN --SCAN_z_dim 32
