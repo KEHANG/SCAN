@@ -54,13 +54,13 @@ In every card, columns shown from left to right are: 1. original image, 2. label
 
 ### sym2img
 
-Attributes other than the appointed ones are randomly sampled within {0, 1}. 25 of all 40 attributes are selected.
+Attributes other than the appointed ones are randomly sampled within {0, 1}. Here 25 of all 40 attributes are selected.
 
 ![sym2img](results/SCAN/selected_sym2img.jpeg)
 
 ### traversal
 
-Traversal range is -3 ~ 3.    16 of all 40 attributes are selected.
+Traversal range is -3 ~ 3. Here 16 of all 40 attributes are selected.
 
 ![traversal](results/SCAN/selected_traversal.jpeg)
 
