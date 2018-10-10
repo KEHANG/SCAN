@@ -90,7 +90,7 @@ However, I guess the preformance will not be satisfying, because the results of 
 ### Acknowledgement:
 
 I've referred to [the issue][issue] mentioned above, and adopted its solution,
-which is to use the DAE output rather than to improve the visuality of β-VAE.
+which is to use the DAE output rather the direct results of β-VAE to improve the visuality.
 
 ### Reference
 1. Original paper: [SCAN: Learning Hierarchical Compositional Visual Concepts, Higgins et al., ICLR 2018][SCAN]
