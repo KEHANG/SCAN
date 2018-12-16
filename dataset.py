@@ -38,12 +38,12 @@ class CustomMixDataset(Dataset):
         return self.len
 
     def get_tensor(self, root):
-        attr_file = open(os.path.join(root, 'Anno/list_attr_celeba.txt'), 'r')
+        attr_file = open(os.path.join(root, 'Anno/list_attr.txt'), 'r')
         lines = attr_file.readlines()
         self.len = int(lines.pop(0))
         def isnt_punct(w):
             return not w in ['', ' ', ',', '\n']
-        self.keys = list(map(lambda x: x.lstrip(' '), list(filter(isnt_punct, lines.pop(0).split(' ')))))
+        self.keys = list(map(lambda x: x.strip(), list(filter(isnt_punct, lines.pop(0).split(' ')))))
         self.n_key = len(self.keys)
         attr_tensor = []
         pbar = tqdm(total=self.len)
