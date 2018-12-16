@@ -1,6 +1,6 @@
 #! /bin/sh
 
-datapath="/data/hc/SCAN/dataset/" # this should be defined as the directory containing ima_align_celeba.zip
+datapath="/Users/kehang/code/SCAN/dataset/" # this should be defined as the directory containing ima_align_celeba.zip
 mkdir -p $datapath
 cd $datapath
 
