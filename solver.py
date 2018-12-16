@@ -358,7 +358,7 @@ class DAE(Solver):
         if self.args.vis_on and self.global_iter % self.args.gather_step == 0:
             self.gather.insert(iter=self.global_iter, recon_loss=recon_loss.data)
         if self.global_iter % self.args.display_save_step == 0:
-            self.pbar.write('[{}] recon_loss:{:.3f}'.format(self.global_iter, recon_loss.data[0]))
+            self.pbar.write('[{}] recon_loss:{:.3f}'.format(self.global_iter, recon_loss.data))
             self.vis_display([masked, x_recon], traverse=False)
 
         return loss
