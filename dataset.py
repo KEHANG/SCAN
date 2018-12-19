@@ -96,6 +96,14 @@ def return_data(args, require_attr=False):
         train_kwargs = {'root':root, 'transform':transform}
         dset = CustomImageFolder if not require_attr else CustomMixDataset
 
+    elif name.lower() == 'mnist':
+        root = os.path.join(dset_dir, 'MNIST')
+        transform = transforms.Compose([
+            transforms.Resize((image_size, image_size)),
+            transforms.ToTensor(),])
+        train_kwargs = {'root':root, 'transform':transform}
+        dset = CustomImageFolder if not require_attr else CustomMixDataset
+
     elif name.lower() == 'dsprites':
         root = os.path.join(dset_dir, 'dsprites-dataset/dsprites_ndarray_co1sh3sc6or40x32y32_64x64.npz')
         if not os.path.exists(root):

@@ -37,6 +37,9 @@ class Solver(ABC):
             elif args.dataset.lower() == 'celeba':
                 self.nc = 3
                 self.decoder_dist = 'gaussian'
+            elif args.dataset.lower() == 'mnist':
+                self.nc = 3
+                self.decoder_dist = 'gaussian'
             else:
                 raise NotImplementedError
         else:
