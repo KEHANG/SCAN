@@ -51,7 +51,8 @@ class CustomMixDataset(Dataset):
         for line in lines:
             pbar.update(1)
             words = [word for word in line.split(' ')[1:] if word!='' and word!='\n']
-            vector = list(map(lambda x: (1 + float(x)) / 2, words))
+            # vector = list(map(lambda x: (1 + float(x)) / 2, words))
+            vector = list(map(lambda x: int(x), words))
             vector = np.array(vector)
             vector.resize([1, self.n_key])
             attr_tensor.append(vector)
